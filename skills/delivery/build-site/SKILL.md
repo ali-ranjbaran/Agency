@@ -52,6 +52,11 @@ than skip:
 
 Full question set with follow-up prompts: `references/intake-questions.md`.
 
+Save the answers to `clients/<name>/intake.json`, in the shape of the
+template's `content/site.json` (`templates/site-starter/lib/content.ts`),
+without `mode`. Business facts only: no customer data, no personal contact
+lists.
+
 ## 2 · Gate: name the one conversion action
 
 **Do not proceed to the build plan until a single primary conversion action
@@ -67,9 +72,9 @@ plus the reasoning into the project's `build-plan.md` before writing any
 code:
 
 - **Brochure site, under ~10 pages, no auth, client won't edit copy
-  themselves** → static-first, component-driven (React + Tailwind by
-  default — see reference for when a pure static-site generator wins
-  instead). Lighthouse 95+ is the point.
+  themselves** → `templates/site-starter`: Next.js static export +
+  Tailwind on Cloudflare Pages. Lighthouse 95+ is the point; the starter
+  scores 100 as built.
 - **Client must edit their own copy** → static + headless CMS, or
   Next.js + CMS.
 - **Auth, dashboards, dynamic data, or a Level 3 upgrade path** →
@@ -85,9 +90,22 @@ writing any code.**
 
 ## 5 · Build
 
+For branch 1, start from the template:
+
+```bash
+node templates/site-starter/scripts/new-site.mjs --client <name> --intake clients/<name>/intake.json
+```
+
+It creates `~/personal-project/sites/<name>/` as the client's own git repo
+(the client owns their site at exit), refuses without exactly one
+conversion action, and lists what's still missing. The build itself is
+filling `content/site.json` until `npm run validate` passes, then adapting
+sections the intake calls for. Setup steps are in the template's README.
+
 Real content structure from the interview answers — no lorem ipsum, no
 placeholder headings. A placeholder heading survives to launch more often
-than it should; don't create the temptation.
+than it should; don't create the temptation. The validator fails the build
+on placeholder text, so this is enforced, not just advised.
 
 Non-negotiable conversion elements — build these in, don't treat them as
 optional polish:
@@ -95,9 +113,10 @@ optional polish:
 - CTA above the fold, with a working `tel:` click-to-call on mobile
 - One social proof section (reviews, project photos, years in business,
   license/insurance badges — whatever the intake surfaced)
-- Contact form wired to a real, tested destination (CRM endpoint, email,
-  or webhook — confirm which with the operator; do not assume a specific
-  CRM)
+- Contact form wired to a real, tested destination. Default: the client's
+  GHL inbound webhook as the `CRM_WEBHOOK_URL` secret (the template's
+  `functions/api/lead.ts` forwards to it). Confirm with the operator if the
+  client's CRM isn't GHL.
 - Fast load: compressed images, lazy-loaded below the fold, minimal JS
 - Motion in code (CSS transitions/small JS), not a heavy animation library
 
@@ -165,6 +184,7 @@ deploy.** Stop here.
 - Whether a headless CMS is worth the added complexity below a certain
   ticket size, or whether "client wants to edit copy" should just mean
   "operator edits it for them for the first year."
-- What the real form-to-CRM destination looks like in practice once a CRM
-  is actually wired up — the current instruction ("confirm which, don't
-  assume") is a placeholder for a firmer default.
+- Whether the GHL inbound-webhook default holds up on client #1: field
+  mapping, and whether the follow-up automation fires reliably from it.
+- Which parts of `templates/site-starter` survive builds #1 and #2
+  unchanged. Rewrite the template from what the real builds kept.
