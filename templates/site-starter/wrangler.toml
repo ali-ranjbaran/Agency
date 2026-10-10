@@ -1,0 +1,27 @@
+# Cloudflare Pages config. new-site.mjs fills in `name`, SITE_ORIGIN and SITE_MODE.
+# `name` must match the Pages project name in the Cloudflare dashboard.
+# This file is the source of truth for bindings and vars; dashboard edits are
+# overridden on the next deploy.
+name = "site-starter"
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "./out"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "site-db"
+database_id = "REPLACE_WITH_ID_FROM_wrangler_d1_create"
+migrations_dir = "migrations"
+
+[vars]
+SITE_ORIGIN = "https://example.com"
+SITE_MODE = "client"
+# Hard caps on the public form endpoint.
+LEADS_PER_IP_PER_HOUR = "3"
+LEADS_PER_DAY = "40"
+
+# Secrets (never in this file). Set each with:
+#   npx wrangler pages secret put <NAME>
+#   TURNSTILE_SECRET   Turnstile widget secret key
+#   IP_SALT            openssl rand -hex 32
+#   CRM_WEBHOOK_URL    the CRM's inbound webhook URL (client sites)
+#   MOCK_PASSWORD      mock sites only; the site returns 503 in mock mode without it

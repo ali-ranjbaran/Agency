@@ -1,0 +1,19 @@
+{
+  "trade": "hvac",
+  "hero": {
+    "headline": "Furnace and AC repair in {city}",
+    "subhead": "Call and talk to a person. Most no-heat calls get a tech the same day, and you hear the price before any work starts."
+  },
+  "fear": {
+    "fear": "Paying more than you were told",
+    "answer": "The price is quoted before work starts. What we quote is what you pay."
+  },
+  "conversion": { "action": "call", "label": "Call for a same-day visit" },
+  "services": [
+    { "slug": "furnace-repair", "name": "Furnace repair", "summary": "No heat, short cycling or strange noises, diagnosed and fixed.", "whenNeeded": "The furnace won't start, keeps shutting off, or the house won't warm up.", "differentiator": "Most repairs finish on the first visit." },
+    { "slug": "furnace-installation", "name": "Furnace installation", "summary": "A new high-efficiency furnace sized to your house.", "whenNeeded": "Your furnace is past 15 years old or repairs keep adding up.", "differentiator": "Sized from a heat-loss calculation, not a guess." },
+    { "slug": "ac-service", "name": "Air conditioning", "summary": "AC tune-ups, repairs and new installs.", "whenNeeded": "The AC blows warm, freezes up, or hasn't been serviced in two summers.", "differentiator": "Two-hour visit windows." },
+    { "slug": "maintenance-plan", "name": "Maintenance plan", "summary": "One furnace and one AC check a year, with priority booking.", "whenNeeded": "You'd rather not find out the furnace is failing on the coldest night.", "differentiator": "Plan members are booked first on no-heat calls." }
+  ],
+  "brand": { "ink": "#1B2A33", "bg": "#FFFFFF", "primary": "#A8321C", "primaryInk": "#FFFFFF", "muted": "#55636B" }
+}

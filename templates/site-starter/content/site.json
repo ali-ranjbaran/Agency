@@ -1,0 +1,91 @@
+{
+  "mode": "client",
+  "fixture": true,
+  "business": {
+    "name": "Northgate Heating & Air",
+    "trade": "hvac",
+    "phone": "+13065550100",
+    "email": "office@northgate.example",
+    "address": { "city": "Saskatoon", "province": "SK" },
+    "licenseNumber": "TSASK GC-00000",
+    "hours": "Mon–Fri 7am–6pm. No-heat calls answered 24/7 from October to April.",
+    "yearsInBusiness": 14
+  },
+  "area": {
+    "primary": "Saskatoon",
+    "cities": ["Saskatoon", "Martensville", "Warman", "Osler", "Clavet", "Dundurn"]
+  },
+  "conversion": { "action": "call", "label": "Call for a same-day visit" },
+  "hero": {
+    "headline": "Furnace repair in Saskatoon, priced before we start",
+    "subhead": "Most no-heat calls get a tech the same day. You hear the price before any work begins, and that is the price you pay."
+  },
+  "fear": {
+    "fear": "Paying more than you were told",
+    "answer": "Flat-rate pricing, quoted before we pick up a tool. What we quote is what you pay.",
+    "proof": "The quote is written on the work order you sign before we start."
+  },
+  "services": [
+    {
+      "slug": "furnace-repair",
+      "name": "Furnace repair",
+      "summary": "No heat, short cycling or strange noises, diagnosed and fixed, usually in one visit.",
+      "whenNeeded": "Your furnace won't start, keeps shutting off, or the house won't get warm.",
+      "differentiator": "The trucks carry the common parts for the brands we see most, so most repairs finish on the first visit."
+    },
+    {
+      "slug": "furnace-installation",
+      "name": "Furnace installation",
+      "summary": "A new high-efficiency furnace sized to your house, with the old one hauled away.",
+      "whenNeeded": "Your furnace is past 15 years old, repairs keep adding up, or you're finishing a basement.",
+      "differentiator": "We do a heat-loss calculation before quoting, so the furnace fits the house instead of the brochure."
+    },
+    {
+      "slug": "ac-service",
+      "name": "Air conditioning",
+      "summary": "AC tune-ups, repairs and new installs before the first hot week.",
+      "whenNeeded": "The AC blows warm, freezes up, or hasn't been serviced in two summers.",
+      "differentiator": "Spring tune-ups are booked by street, so the visit window is two hours, not a whole day."
+    },
+    {
+      "slug": "maintenance-plan",
+      "name": "Maintenance plan",
+      "summary": "One furnace and one AC check a year, with priority booking when something breaks.",
+      "whenNeeded": "You'd rather not find out the furnace is failing on the coldest night of the year.",
+      "differentiator": "Plan members get booked ahead of the queue on no-heat calls."
+    }
+  ],
+  "proof": {
+    "reviews": [
+      {
+        "text": "Furnace quit on a Sunday night. They had someone here Monday morning and told me the price before he started.",
+        "author": "Sample review",
+        "source": "Fictional, for template testing"
+      },
+      {
+        "text": "Quoted a new furnace with an actual heat-loss calculation. The other two quotes just guessed.",
+        "author": "Sample review",
+        "source": "Fictional, for template testing"
+      }
+    ],
+    "stats": [
+      { "value": "14 years", "label": "in Saskatoon", "source": "Fictional" },
+      { "value": "Same day", "label": "for most no-heat calls", "source": "Fictional" }
+    ],
+    "badges": ["Licensed gas contractor", "Fully insured", "WCB covered"]
+  },
+  "about": {
+    "body": [
+      "Northgate is a fictional heating and cooling company used to test this template.",
+      "Every name, number and review on this page is made up."
+    ]
+  },
+  "brand": {
+    "ink": "#1B2A33",
+    "bg": "#FFFFFF",
+    "primary": "#A8321C",
+    "primaryInk": "#FFFFFF",
+    "muted": "#55636B"
+  },
+  "legal": { "province": "Saskatchewan", "privacyContact": "office@northgate.example" }
+}

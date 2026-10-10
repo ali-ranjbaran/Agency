@@ -1,0 +1,19 @@
+{
+  "trade": "plumbing",
+  "hero": {
+    "headline": "Plumbing repair in {city}",
+    "subhead": "Leaks, clogs and no hot water. Call and talk to a person, and hear the price before any work starts."
+  },
+  "fear": {
+    "fear": "A repair that has to be done twice",
+    "answer": "If the same problem comes back within a year, we come back and fix it at no charge."
+  },
+  "conversion": { "action": "call", "label": "Call a plumber now" },
+  "services": [
+    { "slug": "leak-repair", "name": "Leak repair", "summary": "Dripping taps, leaking pipes and running toilets, found and fixed.", "whenNeeded": "You hear water running, see a stain, or your water bill jumped.", "differentiator": "We find the source before we open a wall." },
+    { "slug": "drain-cleaning", "name": "Drain cleaning", "summary": "Slow and blocked drains cleared, with a camera check when it keeps coming back.", "whenNeeded": "Water drains slowly, backs up, or smells.", "differentiator": "Camera inspection on repeat clogs." },
+    { "slug": "water-heaters", "name": "Water heaters", "summary": "Tank and tankless water heaters repaired or replaced.", "whenNeeded": "No hot water, rusty water, or a tank older than 10 years.", "differentiator": "Most replacements done the same day." },
+    { "slug": "sump-pumps", "name": "Sump pumps", "summary": "Sump pump installs, replacements and battery backups.", "whenNeeded": "Before spring melt, or after the pump failed once.", "differentiator": "Battery backups tested before we leave." }
+  ],
+  "brand": { "ink": "#14283A", "bg": "#FFFFFF", "primary": "#0B5E8E", "primaryInk": "#FFFFFF", "muted": "#4F6170" }
+}

@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+/*
+ * Brand tokens. layout.tsx sets --ink, --bg, --primary, --primary-ink and
+ * --muted on <html> from content/site.json (brand.*); validate-content.mjs
+ * checks their contrast. Everything else derives from those five.
+ */
+:root {
+  --ink: #1B2A33; --bg: #FFFFFF; --primary: #A8321C; --primary-ink: #FFFFFF; --muted: #55636B;
+  --line: color-mix(in srgb, var(--ink) 14%, var(--bg));
+  --tint: color-mix(in srgb, var(--primary) 6%, var(--bg));
+  --ease: cubic-bezier(.2,.7,.2,1);
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-bg: var(--bg);
+  --color-primary: var(--primary);
+  --color-primary-ink: var(--primary-ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-tint: var(--tint);
+}
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text-sm: 0.9375rem;   --text-sm--line-height: 1.5;
+  --text-base: 1.0625rem; --text-base--line-height: 1.6;
+  --text-lead: clamp(1.0625rem, 0.95rem + 0.5vw, 1.25rem); --text-lead--line-height: 1.55;
+  --text-title: 1.375rem; --text-title--line-height: 1.25;
+  --text-h2: clamp(1.75rem, 1.2rem + 1.8vw, 2.375rem); --text-h2--line-height: 1.15;
+  --text-display: clamp(2.125rem, 1.2rem + 3.8vw, 3.75rem); --text-display--line-height: 1.05;
+  --container-page: 72rem;
+  --breakpoint-nav: 52rem;
+}
+
+@utility gutter { padding-inline: clamp(16px, 5vw, 48px); }
+@utility section-y { padding-block: clamp(48px, 8vw, 96px); }
+
+@layer base {
+  html { background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+  body { font-family: var(--font-sans); font-size: var(--text-base); line-height: 1.6; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; border-radius: 2px; }
+  [id] { scroll-margin-top: 24px; }
+  h1, h2, h3 { text-wrap: balance; letter-spacing: -0.015em; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+}
+
+@layer components {
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+    min-height: 48px; padding: .75rem 1.375rem; border-radius: 4px;
+    background: var(--primary); color: var(--primary-ink);
+    font-weight: 700; text-decoration: none; text-align: center;
+    transition: filter .2s var(--ease), transform .2s var(--ease);
+  }
+  .btn:hover { filter: brightness(.9); }
+  .btn:active { transform: translateY(1px); }
+  .btn-sm { min-height: 44px; padding: .5rem 1rem; font-size: var(--text-sm); }
+  .btn-ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--ink); }
+  .btn-ghost:hover { filter: none; background: var(--tint); }
+  .link { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+  .link:hover { text-decoration-thickness: 2px; }
+  .field { margin-top: .5rem; display: block; width: 100%; border-radius: 4px; border: 1px solid var(--muted); background: var(--bg); padding: .75rem .875rem; }
+  .field:focus { border-color: var(--ink); }
+  .skip { position: absolute; left: -9999px; top: 0; z-index: 50; }
+  .skip:focus { left: 16px; top: 16px; }
+}

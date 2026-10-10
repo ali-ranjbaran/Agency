@@ -1,0 +1,19 @@
+{
+  "trade": "electrical",
+  "hero": {
+    "headline": "Licensed electricians in {city}",
+    "subhead": "Panels, wiring and repairs done to code by licensed electricians. Call and hear the price before any work starts."
+  },
+  "fear": {
+    "fear": "Hiring someone who isn't licensed",
+    "answer": "Every job is done by a licensed electrician, with a permit where one is required."
+  },
+  "conversion": { "action": "call", "label": "Call an electrician" },
+  "services": [
+    { "slug": "panel-upgrades", "name": "Panel upgrades", "summary": "Old or full panels replaced, sized for what you run today.", "whenNeeded": "Breakers trip often, the panel is full, or you're adding an EV charger.", "differentiator": "Permit and inspection handled for you." },
+    { "slug": "ev-chargers", "name": "EV chargers", "summary": "Level 2 home chargers installed and permitted.", "whenNeeded": "You bought or ordered an electric vehicle.", "differentiator": "Load check before the quote." },
+    { "slug": "wiring-repair", "name": "Wiring and repairs", "summary": "Dead outlets, flickering lights and faulty wiring, found and fixed.", "whenNeeded": "Something sparks, buzzes, flickers or stopped working.", "differentiator": "Diagnosed on the first visit." },
+    { "slug": "renovations", "name": "Renovation wiring", "summary": "Wiring for basements, kitchens and additions, to code.", "whenNeeded": "You're renovating and need wiring that passes inspection.", "differentiator": "We work to your contractor's schedule." }
+  ],
+  "brand": { "ink": "#1F2328", "bg": "#FFFFFF", "primary": "#8A4B00", "primaryInk": "#FFFFFF", "muted": "#57606A" }
+}
