@@ -11,7 +11,7 @@ Access. It is never deployed to Pages and never linked from thearkosa.com.
 | Both listeners bind to `127.0.0.1` | Nothing on the network can reach the Mac directly. No open ports. |
 | Local listener (`PORT`, 4317) | Accepts only `Host: localhost:4317` / `127.0.0.1:4317`, which blocks DNS-rebinding pages. |
 | Tunnel listener (`TUNNEL_PORT`, 4318) | The only thing cloudflared forwards to. Every request needs a valid Cloudflare Access JWT (RS256, checked against your team's certs, `aud`, `iss`, `exp`) for an email in `ACCESS_EMAILS`. Fails closed: with any Access setting empty it returns 503. |
-| Cloudflare Access | Login in front of `ops.thearkosa.com` (one-time PIN to your email). Two checks: Cloudflare's edge, then the server. |
+| Cloudflare Access | Login in front of `audit.thearkosa.com` (one-time PIN to your email). Two checks: Cloudflare's edge, then the server. |
 | POSTs | Need `x-arkosa-ops: 1` and a JSON body, so a cross-site page can't trigger audits. |
 | Headers | Strict CSP (no third-party scripts), `noindex`, `no-store`, no framing. |
 | Cost caps | `AUDITS_PER_DAY` (25), at most 5 queued, one Claude run at a time, 15-minute timeout per run. |
@@ -37,7 +37,7 @@ Do step 1 before step 3, so the hostname never exists without the login in front
 The server fails closed either way.
 
 1. **Access application first.** Zero Trust dashboard → Access → Applications → Add →
-   Self-hosted. Domain `ops.thearkosa.com`. Policy: Allow, Include → Emails →
+   Self-hosted. Domain `audit.thearkosa.com`. Policy: Allow, Include → Emails →
    your email only. Login method: one-time PIN. Save, then copy the **Application Audience
    (AUD) tag** (Configure → Additional settings) and note your team domain
    (`https://<team>.cloudflareaccess.com`).
@@ -45,29 +45,29 @@ The server fails closed either way.
    ```bash
    brew install cloudflared
    cloudflared tunnel login                 # pick thearkosa.com
-   cloudflared tunnel create arkosa-ops     # note the UUID and credentials file path
+   cloudflared tunnel create arkosa-audit     # note the UUID and credentials file path
    ```
-   Write `~/.cloudflared/arkosa-ops.yml`:
+   Write `~/.cloudflared/arkosa-audit.yml`:
    ```yaml
    tunnel: <UUID>
    credentials-file: /Users/<you>/.cloudflared/<UUID>.json
    ingress:
-     - hostname: ops.thearkosa.com
+     - hostname: audit.thearkosa.com
        service: http://127.0.0.1:4318
      - service: http_status:404
    ```
-3. **DNS.** `cloudflared tunnel route dns arkosa-ops ops.thearkosa.com`
+3. **DNS.** `cloudflared tunnel route dns arkosa-audit audit.thearkosa.com`
 4. **Server config.** In `~/.arkosa/ops.env`:
    ```
    ACCESS_TEAM_DOMAIN=https://<team>.cloudflareaccess.com
    ACCESS_AUD=<AUD tag>
    ACCESS_EMAILS=<your email>
-   OPS_HOSTNAME=ops.thearkosa.com
+   OPS_HOSTNAME=audit.thearkosa.com
    ```
 5. Re-run `install-dashboard.sh`. It now starts the tunnel agent too.
-6. **Test it's closed:** in a private window, `https://ops.thearkosa.com` must show the
+6. **Test it's closed:** in a private window, `https://audit.thearkosa.com` must show the
    Cloudflare login, not the dashboard. `curl -s -o /dev/null -w '%{http_code}' -H 'Host:
-   ops.thearkosa.com' http://127.0.0.1:4318/api/state` on the Mac must print `403`.
+   audit.thearkosa.com' http://127.0.0.1:4318/api/state` on the Mac must print `403`.
 
 The Mac mini has to be awake: System Settings → Energy → "Prevent automatic sleeping when
 the display is off".
