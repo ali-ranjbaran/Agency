@@ -1,7 +1,17 @@
 "use client";
 import { useState } from "react";
 import { Lockup } from "./Logo";
-import { NAV } from "@/lib/site";
+import { DEMO_NUMBER, NAV, formatPhone } from "@/lib/site";
+
+/** Tap-to-call for the demo line, in the first screen. Renders nothing until the number is set. */
+function DemoCall({ className = "" }: { className?: string }) {
+  if (!DEMO_NUMBER) return null;
+  return (
+    <a href={`tel:${DEMO_NUMBER}`} className={`link-underline py-2 text-sm font-semibold ${className}`} aria-label={`Call the demo line, ${formatPhone(DEMO_NUMBER)}`}>
+      <span className="hidden sm:inline">Demo line </span>{formatPhone(DEMO_NUMBER)}
+    </a>
+  );
+}
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -15,9 +25,11 @@ export function Header() {
           {NAV.map((l) => (
             <a key={l.href} href={l.href} className="link-underline py-2 text-sm font-semibold">{l.label}</a>
           ))}
+          <DemoCall />
           <a href="/#start" className="btn btn-sm">Get started</a>
         </nav>
         <div className="flex items-center gap-2 nav:hidden">
+          <DemoCall className="mr-1" />
           <a href="/#start" className="btn btn-sm">Get started</a>
           <button
             type="button"
