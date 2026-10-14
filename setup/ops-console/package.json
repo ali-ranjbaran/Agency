@@ -5,13 +5,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "typecheck": "tsc -b && tsc -p tsconfig.functions.json",
+    "collect-docs": "node scripts/collect-docs.mjs",
+    "build": "npm run collect-docs && tsc -b && vite build",
+    "typecheck": "npm run collect-docs && tsc -b && tsc -p tsconfig.functions.json",
     "test": "node --test test/*.test.mjs",
-    "test:e2e": "npm run build && node test/e2e-local.mjs && node test/e2e-leadgen.mjs",
+    "test:e2e": "npm run build && node test/e2e-local.mjs && node test/e2e-leadgen.mjs && node test/e2e-docs.mjs",
     "test:runner": "cd runner && ARKOSA_DIR=/nonexistent node --test test/*.test.mjs",
     "db:migrate": "wrangler d1 migrations apply arkosa --remote",
     "deploy": "npm run typecheck && npm test && vite build && wrangler pages deploy",
+    "reviews:pull": "node scripts/reviews-pull.mjs",
     "lint": "oxlint"
   },
   "dependencies": {
@@ -22,6 +24,7 @@
     "class-variance-authority": "^0.7.1",
     "cn": "^0.4.0",
     "lucide-react": "^1.56.0",
+    "markdown-it": "^14.3.2",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "^7.18.4",
@@ -31,6 +34,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261014.1",
+    "@types/markdown-it": "^14.2.0",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

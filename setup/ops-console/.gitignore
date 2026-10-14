@@ -4,3 +4,4 @@ node_modules/
 runner/node_modules/
 runner/snapshot-out/
 .dev.vars
+server/docs.generated.ts

@@ -128,3 +128,21 @@
     @apply font-sans;
     }
 }
+/* Documents: rendered markdown (no raw HTML; see src/lib/markdown.ts). Tokens only. */
+@layer components {
+  .doc-body { @apply text-sm leading-6; }
+  .doc-body h1 { @apply mt-2 mb-3 text-xl font-semibold; }
+  .doc-body h2 { @apply mt-6 mb-2 scroll-mt-4 border-b pb-1 text-lg font-semibold; }
+  .doc-body h3, .doc-body h4 { @apply mt-4 mb-1 scroll-mt-4 font-semibold; }
+  .doc-body p, .doc-body ul, .doc-body ol, .doc-body blockquote, .doc-body pre, .doc-body table { @apply my-2; }
+  .doc-body ul { @apply list-disc pl-5; }
+  .doc-body ol { @apply list-decimal pl-5; }
+  .doc-body blockquote { @apply border-l-4 pl-3 text-muted-foreground; }
+  .doc-body code { @apply rounded bg-muted px-1 text-xs; }
+  .doc-body pre { @apply overflow-x-auto rounded-md bg-muted p-2; }
+  .doc-body table { @apply block w-full overflow-x-auto text-xs; }
+  .doc-body th, .doc-body td { @apply border px-2 py-1 text-left align-top; }
+  .doc-body a { @apply underline; }
+  .doc-ph { @apply rounded bg-accent px-0.5 text-accent-foreground ring-1 ring-ring/40; }
+  .doc-lawyer { @apply rounded bg-destructive/15 px-0.5 font-semibold text-destructive; }
+}

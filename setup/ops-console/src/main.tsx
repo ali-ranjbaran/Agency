@@ -15,10 +15,11 @@ import Suppression from "@/pages/Suppression";
 import Leads from "@/pages/Leads";
 import Review from "@/pages/Review";
 import Searches from "@/pages/Searches";
+import Documents, { DocumentView } from "@/pages/Documents";
 
 const NAV: [string, string][] = [
   ["/", "Today"], ["/companies", "Table"], ["/board", "Board"], ["/possible", "Possible clients"], ["/review", "Review queue"],
-  ["/searches", "Searches"], ["/leads", "Inbound leads"], ["/ready", "Ready to send"], ["/import", "Import"], ["/suppression", "Suppression"],
+  ["/searches", "Searches"], ["/leads", "Inbound leads"], ["/ready", "Ready to send"], ["/import", "Import"], ["/suppression", "Suppression"], ["/documents", "Documents"],
 ];
 
 function Shell() {
@@ -48,6 +49,8 @@ function Shell() {
           <Route path="/ready" element={<Ready />} />
           <Route path="/import" element={<Import />} />
           <Route path="/suppression" element={<Suppression />} />
+          <Route path="/documents" element={<Documents />} />
+          <Route path="/documents/view" element={<DocumentView />} />
           <Route path="*" element={<p>Not found.</p>} />
         </Routes>
       </main>

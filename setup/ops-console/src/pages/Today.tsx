@@ -6,6 +6,7 @@ import { api, fmtDate, type Company, type Lead } from "@/lib/api";
 
 type TodayData = {
   date: string; calls_due: Company[]; follow_ups_due: Company[]; new_leads: Lead[];
+  docs: { awaiting_review: number; changed_since_approved: number; open_lawyer: number; decisions_unsigned: number };
   demo_calls: { at: string; last4: string; sms_sent: number; reply_sent: number; company: { id: number; name: string } | null }[];
 };
 
@@ -50,6 +51,18 @@ export default function Today() {
                   ))}
                 </ul>
               ) : <p className="text-sm text-muted-foreground">None in the last 14 days.</p>}
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader><CardTitle>Documents</CardTitle></CardHeader>
+            <CardContent>
+              <ul className="space-y-1 text-sm">
+                <li>{d.docs.awaiting_review} awaiting review</li>
+                <li className={d.docs.changed_since_approved ? "text-destructive" : ""}>{d.docs.changed_since_approved} changed since approval</li>
+                <li>{d.docs.open_lawyer} open [LAWYER] tags</li>
+                <li>{d.docs.decisions_unsigned} decisions unsigned · <Link to="/documents?tab=decisions" className="underline">sign off</Link></li>
+              </ul>
+              <Link to="/documents" className="mt-2 inline-block text-sm underline">Open documents</Link>
             </CardContent>
           </Card>
           <Card>
