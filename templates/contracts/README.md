@@ -73,6 +73,14 @@ sow-entry 3, sow-core 4, casl-wording 10. The main questions:
    pausing on failed payment.
 8. **D7 guarantee** (optional clause in `sow-core.md`), only if D7 is signed off.
 
+## Sources
+
+Checked 2026-10-14. crtc.gc.ca refused direct requests (HTTP 403), so CRTC pages were read
+through Wayback Machine snapshots, and are labelled as such in the comments. CRTC
+Information Bulletin 2012-548 could not be loaded. Bill C-27 (CPPA) never passed; its
+successor Bill C-36 was at second reading on 2026-10-14, so PIPEDA still applies
+(https://www.parl.ca/legisinfo/en/bill/45-1/c-36). Re-check before the lawyer review.
+
 ## Rules for using the pack
 
 - Never send a contract with a price before the call (CLAUDE.md).

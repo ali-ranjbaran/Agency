@@ -124,7 +124,7 @@ Within {EXIT_DAYS} days of the end of the last SOW, Arkosa will:
 
 > Written to align with PIPEDA's principles. Arkosa should confirm with a lawyer that
 > this schedule fits how each client's data actually flows. [LAWYER]
-<!-- source: OPC, PIPEDA fair information principles — {SOURCE_URL_PIPEDA_PRINCIPLES} -->
+<!-- source: OPC, PIPEDA fair information principles — https://laws-lois.justice.gc.ca/eng/acts/P-8.6/FullText.html Schedule 1; checked 2026-10-14 -->
 
 ### Roles
 
@@ -132,7 +132,7 @@ Within {EXIT_DAYS} days of the end of the last SOW, Arkosa will:
   collected.
 - Arkosa is the Client's **service provider**. It processes that information only to
   deliver the SOW, only on the Client's instructions, and not for its own purposes.
-<!-- source: OPC, accountability when transferring personal information for processing — {SOURCE_URL_OPC_PROCESSING} -->
+<!-- source: OPC, accountability when transferring personal information for processing — https://laws-lois.justice.gc.ca/eng/acts/P-8.6/FullText.html Schedule 1 cl.4.1.3; https://www.priv.gc.ca/en/privacy-topics/airports-and-borders/gl_dab_090127/ ; checked 2026-10-14 -->
 - The Client stays accountable to its customers for the information. Arkosa protects it
   by contract under this schedule.
 
@@ -161,13 +161,13 @@ The Client is told this here so it can tell its own customers in its privacy pol
 Arkosa tells the Client within {BREACH_NOTICE_HOURS} hours of learning of a breach of
 safeguards that involves the Client's customer data, with what is known, and helps the
 Client meet its own reporting and record-keeping duties. [LAWYER]
-<!-- source: OPC, breach of security safeguards reporting — {SOURCE_URL_OPC_BREACH} -->
+<!-- source: OPC, breach of security safeguards reporting — https://laws-lois.justice.gc.ca/eng/regulations/SOR-2018-64/FullText.html ; https://www.priv.gc.ca/en/privacy-topics/business-privacy/breaches-and-safeguards/privacy-breaches-at-your-business/gd_pb_201810/ ; checked 2026-10-14 -->
 
 ### Access and correction requests
 
 If a customer of the Client asks Arkosa for their information, Arkosa passes the request
 to the Client within 2 business days and helps the Client answer it in time.
-<!-- source: OPC, access requests — {SOURCE_URL_OPC_ACCESS} -->
+<!-- source: OPC, access requests — https://laws-lois.justice.gc.ca/eng/acts/P-8.6/FullText.html (30-day time limit for access requests); checked 2026-10-14 -->
 
 ### Retention and deletion
 
@@ -183,7 +183,7 @@ to the Client within 2 business days and helps the Client answer it in time.
 - The Client confirms that every contact it asks Arkosa to message has a valid consent
   basis, and that past-customer lists contain only customers with a purchase in the last
   2 years, or with express consent on record. [LAWYER]
-<!-- source: CRTC / Government of Canada, implied consent periods — {SOURCE_URL_CASL_IMPLIED} -->
+<!-- source: CRTC / Government of Canada, implied consent periods — https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.10(9)-(10); https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); checked 2026-10-14 -->
 - Arkosa builds the consent windows and unsubscribe handling into the workflows as set
   out in `casl-wording.md`, and keeps the records the workflows produce.
 - Arkosa does not send cold SMS for the Client, ever.

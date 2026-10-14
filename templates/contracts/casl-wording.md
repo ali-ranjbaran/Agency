@@ -18,17 +18,17 @@ Placeholders: `{CLIENT_NAME}` trading name · `{CLIENT_PHONE}` · `{CLIENT_WEB}`
 
 - **Sender ID.** The message names the business it is sent for. A message sent on the
   client's behalf identifies the client. [LAWYER]
-<!-- source: {SOURCE_URL_ID} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/regulations/SOR-2012-36/FullText.html s.2; https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.11(2); checked 2026-10-14 -->
 - **Contact details.** Each message, or a link in it, gives a mailing address plus a
   phone number, email or web address that works for at least 60 days after sending.
-<!-- source: {SOURCE_URL_ID} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/regulations/SOR-2012-36/FullText.html s.2; https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.11(2); checked 2026-10-14 -->
 - **Unsubscribe.** Each commercial message carries a free, easy unsubscribe. In SMS that is
   "Reply STOP to opt out". A STOP is honoured immediately by the workflow, and in all cases
   within 10 business days. [LAWYER]
-<!-- source: {SOURCE_URL_UNSUB} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.11; https://laws-lois.justice.gc.ca/eng/regulations/SOR-2012-36/FullText.html s.3; https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); https://ised-isde.canada.ca/site/canada-anti-spam-legislation/en/texting-good-client-relations; checked 2026-10-14 -->
 - **Records.** The workflow stores, per contact: consent basis, the date it started, the
   date it expires, and the date of any STOP. The sender has to be able to prove consent.
-<!-- source: {SOURCE_URL_PROOF} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.13; https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); checked 2026-10-14 -->
 - **Never** send to a contact whose consent has expired or who has replied STOP. Never cold
   SMS.
 
@@ -39,9 +39,12 @@ Contact-details line used where SMS length forces a link:
 ## 1 · Missed-call text-back
 
 - **Consent basis:** implied, from the caller's inquiry (they called the business).
-  Treated as a reply to that inquiry. [LAWYER]
+  Arguably also a reply to an inquiry, which is excluded from the consent rules; no official
+  guidance names missed-call text-backs, so the text keeps the business name and STOP anyway.
+  [LAWYER]
+<!-- source: https://laws-lois.justice.gc.ca/eng/regulations/SOR-2013-221/FullText.html s.3(b); unverified for text-backs specifically -->
 - **Expiry:** 6 months from the call.
-<!-- source: {SOURCE_URL_IMPLIED} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.10(9)-(10); https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); checked 2026-10-14 -->
 - **Sends when:** an inbound call is not answered. Never to a number tagged as spam.
   One text per call, at most one per number per {TEXTBACK_COOLDOWN_HOURS} hours.
 
@@ -52,9 +55,11 @@ Wording (under 160 characters where possible):
 
 ## 2 · Review request
 
-- **Consent basis:** implied, from a purchase (a completed job). [LAWYER]
+- **Consent basis:** implied, from a purchase (a completed job). No CRTC guidance found on
+  review requests; treated as a commercial message to be safe. Never add an offer to it.
+  [LAWYER]
 - **Expiry:** 2 years from the job date.
-<!-- source: {SOURCE_URL_IMPLIED} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.10(9)-(10); https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); checked 2026-10-14 -->
 - **Sends when:** the client marks the job complete. One request, at most one reminder 3
   days later. Stops at STOP or once a review is detected.
 
@@ -71,12 +76,16 @@ Reminder:
 - **Consent basis:** implied, from a purchase **within the last 2 years only**, or express
   consent on record. [LAWYER]
 - **Expiry:** 2 years from the most recent job. Express consent lasts until withdrawn.
-<!-- source: {SOURCE_URL_IMPLIED} -->
-<!-- source: {SOURCE_URL_EXPRESS} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.10(9)-(10); https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); checked 2026-10-14 -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.10(1); https://laws-lois.justice.gc.ca/eng/regulations/SOR-2012-36/FullText.html s.4; https://web.archive.org/web/20250513204205/https://crtc.gc.ca/eng/com500/guide.htm (CRTC implied-consent guidance via Wayback); checked 2026-10-14 -->
 - **Hard gate:** the import drops any contact with no last-job date, or a last job older
   than 2 years, unless express consent is recorded with its date and wording.
 - **Sends when:** a scheduled campaign (seasonal, or a cold-snap forecast). At most
   {REACTIVATION_PER_SEASON} per season.
+- **After 2 years:** don't text or email to ask for consent. A consent request sent by email
+  or SMS is itself a commercial message. Ask by phone or in person, and record the date and
+  wording. [LAWYER]
+<!-- source: https://web.archive.org/web/20250513204205/https://crtc.gc.ca/eng/com500/guide.htm (CRTC implied-consent guidance via Wayback) -->
 
 > Hi {CUSTOMER_FIRST_NAME}, it's {CLIENT_NAME}. We serviced your system last year. Want
 > your furnace checked before the cold? Reply YES and we'll call to book. Reply STOP to opt
@@ -87,8 +96,8 @@ Reminder:
 - **Consent basis:** implied, from the inquiry that led to the quote. A message that only
   delivers the quote the customer asked for may fall under narrower rules. [LAWYER]
 - **Expiry:** 6 months from the inquiry.
-<!-- source: {SOURCE_URL_IMPLIED} -->
-<!-- source: {SOURCE_URL_QUOTE} -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-2.html s.10(9)-(10); https://web.archive.org/web/20261010210139/https://crtc.gc.ca/eng/com500/faq500.htm (CRTC FAQ via Wayback; crtc.gc.ca returned 403 directly); checked 2026-10-14 -->
+<!-- source: https://laws-lois.justice.gc.ca/eng/acts/E-1.6/page-1.html s.6(6); https://laws-lois.justice.gc.ca/eng/regulations/SOR-2013-221/FullText.html s.3(b); checked 2026-10-14 -->
 - **Sends when:** a quote is open and unanswered. Up to {QUOTE_FOLLOWUPS} messages, spaced
   {QUOTE_SPACING_DAYS} days apart. Stops at the first reply or STOP.
 
