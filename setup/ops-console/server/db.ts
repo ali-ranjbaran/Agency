@@ -82,7 +82,7 @@ export async function phoneHashes(env: Env, companies: { id: number; name: strin
 }
 
 /** Signed, short-lived screenshot URL: /api/snapshots/:id/:view?exp=&sig= (still behind Access). */
-export async function snapshotUrl(env: Env, id: number, view: "desktop" | "mobile", ttlSec = 300) {
+export async function snapshotUrl(env: Env, id: number, view: "desktop" | "mobile" | `qa-${number}`, ttlSec = 300) {
   if (!env.SNAPSHOT_URL_KEY) return null;
   const exp = Math.floor(Date.now() / 1000) + ttlSec;
   const sig = await hmacHex(env.SNAPSHOT_URL_KEY, `${id}:${view}:${exp}`);

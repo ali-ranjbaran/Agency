@@ -74,3 +74,12 @@ export function lineDiff(a: string, b: string): { op: " " | "+" | "-"; line: str
   while (j < m) out.push({ op: "+", line: y[j++] });
   return out;
 }
+
+/** The qa-site verdict: the first line that is one of the three verdicts. */
+export function qaVerdict(content: string) {
+  for (const line of content.split("\n")) {
+    const m = /^\W*(CLEARED|NOT CLEARED|LAUNCH BLOCKED)\b/.exec(line.trim());
+    if (m) return m[1];
+  }
+  return null;
+}

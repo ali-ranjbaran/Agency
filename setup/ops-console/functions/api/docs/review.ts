@@ -4,7 +4,7 @@
  * Approval stores that exact text first; the schema refuses an approval without it.
  */
 import type { Env, Who } from "../../../server/env";
-import { findDoc } from "../../../server/docs";
+import { findAnyDoc } from "../../../server/docs";
 import { bad, json, optStr, readJson, str } from "../../../server/http";
 
 export const onRequestPost: PagesFunction<Env, string, { who: Who }> = async ({ request, env, data }) => {
@@ -12,7 +12,7 @@ export const onRequestPost: PagesFunction<Env, string, { who: Who }> = async ({ 
   const t = data.who.tenant;
   const body = await readJson(request);
   if (!body) return bad("JSON body expected");
-  const doc = findDoc(str(body.path, 300));
+  const doc = await findAnyDoc(env, data.who.tenant, str(body.path, 300));
   if (!doc) return bad("not found", 404);
   if (str(body.sha, 64) !== doc.sha256) return bad("this document changed since you opened it; reload", 409);
   const status = str(body.status, 30);

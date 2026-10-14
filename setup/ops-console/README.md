@@ -11,10 +11,11 @@ from it.
 |---|---|
 | `functions/_middleware.ts` | Cloudflare Access JWT check on **every** request (static files too). Fails closed (503) without config. Writes must be same-origin JSON. |
 | `functions/api/**` | JSON API. `/api/runner/*` accepts only the Mac runner's service token. |
-| `migrations/1001_console.sql`, `1002_leadgen.sql` | Console tables in the shared D1 `arkosa`. CASL and suppression gates live **in the schema** (CHECK + triggers). File names start at 1001 so they never collide with the website's migrations. |
+| `scripts/collect-docs.mjs` | Runs before every build/typecheck. Bundles the allowlisted repo docs (templates/contracts, outreach, proposals, reports; admin/decisions.md, demo-line-test.md, ICP.md, runs/*.md; the plan's D1–D10 tables) into `server/docs.generated.ts` (not in git). Fails on any other path, anything under `clients/`, or a real-looking email/phone. |
+| `migrations/1001_console.sql`, `1002_leadgen.sql`, `1003_documents.sql` | Console tables in the shared D1 `arkosa`. CASL and suppression gates live **in the schema** (CHECK + triggers). File names start at 1001 so they never collide with the website's migrations. |
 | `shared/fit-score.ts` | **The** fit-score config. Edit points and rules here; the UI shows the breakdown on hover. |
 | `shared/casl.ts`, `shared/first-line.ts` | CASL field rules; "copy first line" templates (verified signals only). |
-| `src/` | React + Tailwind + shadcn/ui. Table, Board, Company, Today, Possible clients, Review queue, Searches, Inbound leads, Ready to send, Import, Suppression. |
+| `src/` | React + Tailwind + shadcn/ui. Table, Board, Company, Today, Possible clients, Review queue, Searches, Inbound leads, Ready to send, Import, Suppression, Documents. |
 | `runner/` | Runs on the Mac: `snapshot.mjs` (screenshots + Lighthouse), `jobs.mjs` (lead searches), `enrich.mjs`, `sources/*` (each opens with its terms note), `install-runner.sh` (launchd). |
 
 Reads, never writes: the website's `leads` and `demo_calls` tables. Demo calls match a company by
@@ -35,15 +36,24 @@ hashing its phone with the same `PHONE_HASH_KEY` the demo line uses.
 - **Screenshots:** private R2 bucket, served only through a 5-minute signed URL behind Access.
   Internal sales research: never published, never reused in a rebuild.
 - **Export** is aggregate counts only.
+- **Documents:** git is the source; the console holds review state only. Markdown renders with raw HTML
+  off. An approval belongs to one content sha: new text shows "changed since approved", a diff against the
+  approved text, and goes back to review. Reviews, approved snapshots and sign-offs are append-only;
+  comments can only be resolved. Request changes / reject / amend need a note (schema CHECKs).
+- **QA reports:** `runner/qa-upload.mjs` (every 15 min) sends new `~/Arkosa-leads/qa/*/report.md` + up to 12
+  screenshots through the runner service token. They appear under Documents → QA reports with the verdict
+  badge; screenshots use the same signed-URL route as site snapshots.
+- **`npm run reviews:pull`** writes open comments, change requests and the latest sign-offs to
+  `~/Arkosa-leads/reviews/<date>.md`. SELECT only. Local D1 by default; add `-- --remote` for production.
 
 ## Tests (all local, fictional data only)
 
 ```bash
 npm install && (cd runner && npm install && npx playwright install chromium)
 npm run typecheck
-npm test              # schema gates (CASL, suppression, refusal, Places cap) + Access JWT
+npm test              # schema gates (CASL, suppression, refusal, Places cap, documents) + Access JWT + doc collector
 npm run test:runner   # snapshots + Lighthouse, enrichment, sources (mocked), on 127.0.0.1 fixtures
-npm run test:e2e      # wrangler pages dev + local D1/R2 + mock Access: console flows, lead generator, UI smoke
+npm run test:e2e      # wrangler pages dev + local D1/R2 + mock Access: console flows, lead generator, documents, UI smoke
 ```
 
 ## Setup (one time)

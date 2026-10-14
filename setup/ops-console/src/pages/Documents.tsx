@@ -10,17 +10,19 @@ import { renderMarkdown } from "@/lib/markdown";
 import { KIND_LABEL, headings, lineDiff, type Decision, type Doc } from "@shared/docs";
 
 type DocRow = { path: string; title: string; kind: string; sha256: string; commit: string | null; dirty: boolean; placeholders: number; lawyer: number;
-  status: string; changed_since_approved: boolean; open_comments: number };
+  status: string; changed_since_approved: boolean; open_comments: number; verdict: string | null };
 type Signoff = { decision_id: string; decision_sha: string; choice: string; note: string | null; reviewer: string; at: string };
 type DecisionRow = Decision & { signoff: Signoff | null; changed_since_signoff: boolean };
 type Comment = { id: number; content_sha: string; anchor: string; body: string; reviewer: string; resolved: number; at: string };
 type Item = { doc: Doc; status: string; changed_since_approved: boolean; last_approved: { content_sha: string; at: string; content: string | null } | null;
-  history: { content_sha: string; status: string; note: string | null; reviewer: string; at: string }[]; comments: Comment[] };
+  history: { content_sha: string; status: string; note: string | null; reviewer: string; at: string }[]; comments: Comment[];
+  verdict: string | null; shots: (string | null)[] };
 
 const STATUS_LABEL: Record<string, string> = { unread: "unread", in_review: "in review", changes_requested: "changes requested", approved: "approved" };
 export const StatusBadge = ({ status }: { status: string }) => (
   <Badge variant={status === "approved" ? "default" : status === "changes_requested" ? "destructive" : "secondary"}>{STATUS_LABEL[status] ?? status}</Badge>
 );
+export const VerdictBadge = ({ v }: { v: string | null }) => (v ? <Badge variant={v === "CLEARED" ? "default" : "destructive"}>{v}</Badge> : null);
 const Markers = ({ p, l }: { p: number; l: number }) => (
   <>{p > 0 && <Badge variant="outline">{p} placeholder{p === 1 ? "" : "s"}</Badge>}{l > 0 && <Badge variant="outline" className="border-amber-500">{l} [LAWYER]</Badge>}</>
 );
@@ -44,6 +46,7 @@ function DocList({ docs }: { docs: DocRow[] }) {
                   <Link to={`/documents/view?path=${encodeURIComponent(d.path)}`} className="font-medium hover:underline">{d.title}</Link>
                   <span className="text-xs text-muted-foreground">{d.path}</span>
                   <span className="flex-1" />
+                  <VerdictBadge v={d.verdict} />
                   <StatusBadge status={d.status} />
                   {d.changed_since_approved && <Badge variant="destructive">changed since approved</Badge>}
                   <Markers p={d.placeholders} l={d.lawyer} />
@@ -148,6 +151,7 @@ export function DocumentView() {
     <>
       <PageTitle actions={<Link to="/documents" className="text-sm underline">All documents</Link>}>{doc.title}</PageTitle>
       <div className="mb-3 flex flex-wrap items-center gap-2 text-sm">
+        <VerdictBadge v={item.verdict} />
         <StatusBadge status={item.status} />
         {item.changed_since_approved && <Badge variant="destructive">changed since approved {fmtDate(item.last_approved?.at)}</Badge>}
         <Markers p={ph} l={lw} />
@@ -173,6 +177,11 @@ export function DocumentView() {
               <div key={i} className={l.op === "+" ? "bg-green-500/15" : l.op === "-" ? "bg-red-500/15" : "text-muted-foreground"}>{l.op} {l.line}</div>
             ))}</pre>
           ) : <div dangerouslySetInnerHTML={{ __html: html }} />}
+          {item.shots.length > 0 && (
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">{item.shots.map((u, i) => u
+              ? <a key={i} href={u} target="_blank" rel="noreferrer noopener"><img src={u} alt={`QA screenshot ${i + 1}`} className="rounded border" /></a>
+              : <span key={i} className="text-xs text-muted-foreground">screenshot {i + 1}: signing key not set</span>)}</div>
+          )}
         </article>
         <aside className="space-y-3 text-sm">
           <Card>

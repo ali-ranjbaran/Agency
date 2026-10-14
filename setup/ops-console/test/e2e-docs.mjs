@@ -61,7 +61,7 @@ async function call(path, { method = "GET", body, token = OP, origin = true } = 
 
 let pages;
 async function start() {
-  const bindings = { ACCESS_TEAM_DOMAIN: TEAM, ACCESS_AUD: AUD, ACCESS_EMAILS: "operator@example.com", RUNNER_CLIENT_IDS: "runner.access" };
+  const bindings = { ACCESS_TEAM_DOMAIN: TEAM, ACCESS_AUD: AUD, ACCESS_EMAILS: "operator@example.com", RUNNER_CLIENT_IDS: "runner.access", SNAPSHOT_URL_KEY: "local-snapshot-key" };
   pages = spawn("npx", ["--no-install", "wrangler", "pages", "dev", "./dist", "--port", String(PORT), "--inspector-port", "9341", "--persist-to", STATE,
     ...Object.entries(bindings).flatMap(([k, v]) => ["--binding", `${k}=${v}`])], { cwd: ROOT, env, stdio: ["ignore", "pipe", "pipe"] });
   for (let i = 0; i < 120; i++) { try { if ((await fetch(`${BASE}/api/docs`)).status) break; } catch { await sleep(500); } }
@@ -128,6 +128,43 @@ try {
   check((await call("/api/docs/review", { method: "POST", body: { path: MSA_PATH, sha: sha1, status: "approved" } })).status === 409, "re-approving the old sha → 409");
   today = (await call("/api/today")).data.docs;
   check(today.changed_since_approved === 1 && today.awaiting_review >= 1, "Today shows the doc changed since approval");
+
+  // ---- QA reports: runner upload → review --------------------------------------------------------
+  const QA = mkdtempSync(join(tmpdir(), "ops-qa-"));
+  mkdirSync(join(QA, "2026-10-14-northgate-demo", "screenshots"), { recursive: true });
+  writeFileSync(join(QA, "2026-10-14-northgate-demo", "report.md"), "LAUNCH BLOCKED\n\n# qa-site report\n\n## Fails\n\n- legal.privacy: no privacy link\n");
+  const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "base64");
+  writeFileSync(join(QA, "2026-10-14-northgate-demo", "screenshots", "375.png"), png);
+  process.env.OPS_URL = BASE; process.env.OPS_TEST_JWT = RUNNER;
+  const { uploadAll } = await import(new URL("../runner/qa-upload.mjs", import.meta.url).href);
+  const { loadConfig, opsClient } = await import(new URL("../runner/lib.mjs", import.meta.url).href);
+  const runnerApi = opsClient(loadConfig());
+  const statePath = join(QA, "state.json");
+  check(await uploadAll(runnerApi, { qaDir: QA, statePath }) === 1, "runner uploads a new QA report");
+  check(await uploadAll(runnerApi, { qaDir: QA, statePath }) === 0, "unchanged report isn't re-sent");
+  check((await call("/api/runner/qa-reports", { method: "POST", body: {} })).status === 403, "operator can't use the runner upload endpoint");
+  check((await call("/api/runner/qa-reports", { method: "POST", body: {}, token: null })).status === 403, "runner upload without a JWT → 403");
+  const qaRow = (await call("/api/docs")).data.docs.find((d) => d.path === "qa/2026-10-14-northgate-demo");
+  check(qaRow?.kind === "qa" && qaRow.verdict === "LAUNCH BLOCKED" && qaRow.status === "unread", `QA report listed with its verdict (${JSON.stringify(qaRow?.verdict)})`);
+  const qaItem = (await call(q("qa/2026-10-14-northgate-demo"))).data;
+  check(qaItem.shots.length === 1 && /sig=/.test(qaItem.shots[0]), "QA screenshot gets a signed URL");
+  const shot = await fetch(BASE + qaItem.shots[0], { headers: { "cf-access-jwt-assertion": OP } });
+  check(shot.status === 200 && shot.headers.get("content-type") === "image/png", "signed URL serves the QA screenshot from private R2");
+  check((await fetch(BASE + qaItem.shots[0])).status === 403, "QA screenshot without an Access JWT → 403");
+  check((await call("/api/docs/review", { method: "POST", body: { path: "qa/2026-10-14-northgate-demo", sha: qaItem.doc.sha256, status: "approved" } })).status === 201, "QA report approved through the same review flow");
+  rmSync(QA, { recursive: true, force: true });
+
+  // ---- reviews:pull (read-only, local D1) -------------------------------------------------------------
+  const sha2 = (await call(q(MSA_PATH))).data.doc.sha256;
+  await call("/api/docs/review", { method: "POST", body: { path: MSA_PATH, sha: sha2, status: "changes_requested", note: "Add the GST number to Parties" } });
+  await call("/api/docs/comments", { method: "POST", body: { path: MSA_PATH, sha: sha2, anchor: "parties", body: "Use the legal name, not the trading name" } });
+  const pullOut = join(STATE, "pull.md");
+  const before = JSON.stringify((await call("/api/docs")).data);
+  const pull = spawnSync("node", ["scripts/reviews-pull.mjs", "--persist-to", STATE, "--out", pullOut], { cwd: ROOT, env, encoding: "utf8" });
+  const md = pull.status === 0 ? readFileSync(pullOut, "utf8") : pull.stderr;
+  check(/Add the GST number/.test(md) && /#parties/.test(md) && /\*\*D1\*\*: amend — 8 \/ 7 in term/.test(md), "reviews:pull writes change requests, open comments and sign-offs");
+  check(!/12 months, not 6/.test(md), "reviews:pull leaves out resolved comments");
+  check(JSON.stringify((await call("/api/docs")).data) === before, "reviews:pull changed nothing");
 
   // ---- UI smoke --------------------------------------------------------------------------------------
   const { chromium } = await import(new URL("../runner/node_modules/playwright/index.mjs", import.meta.url).href);

@@ -93,3 +93,14 @@ Client site forms forward to the client's GHL inbound webhook (`CRM_WEBHOOK_URL`
 only a salted IP hash and a timestamp for the caps.
 **Why:** CLAUDE.md: contacts live in the CRM. One copy of the person's data, in the system
 the client already has a data-handling agreement for.
+
+## 2026-10-14 · Documents: git is the source, the console holds review state only
+
+Contracts, templates, run logs and the plan's D1–D10 are reviewed in the ops console
+(Documents page), but their text is never edited there. `scripts/collect-docs.mjs` bundles an
+allowlist of repo files at build time; D1 stores reviews, comments, the approved text and
+decision sign-offs, each tied to the file's sha256. `npm run reviews:pull` brings the
+feedback back to the repo.
+**Why:** one copy of the text, versioned in git. An approval covers one exact version, so a
+later edit can't inherit it. The allowlist and a personal-data scan keep `clients/` and
+anything personal out of the console.

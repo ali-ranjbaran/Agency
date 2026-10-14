@@ -5,6 +5,7 @@
 #
 # Agent 1  com.arkosa.ops-snapshots  nightly 02:30: site snapshots + Lighthouse (snapshot.mjs)
 # Agent 2  com.arkosa.ops-jobs       every 2 min: claim and run queued lead searches (jobs.mjs)
+# Agent 3  com.arkosa.ops-qa         every 15 min: upload new ~/Arkosa-leads/qa/*/report.md (qa-upload.mjs)
 # Config:  ~/.arkosa/ops-runner.env (outside the repo, chmod 600). Created on first run.
 set -euo pipefail
 
@@ -15,9 +16,10 @@ AGENTS="$HOME/Library/LaunchAgents"
 DOMAIN="gui/$(id -u)"
 L1="com.arkosa.ops-snapshots"
 L2="com.arkosa.ops-jobs"
+L3="com.arkosa.ops-qa"
 
 if [[ "$(uname)" != "Darwin" ]]; then echo "macOS only" >&2; exit 1; fi
-for l in "$L1" "$L2"; do launchctl bootout "$DOMAIN/$l" 2>/dev/null || true; done
+for l in "$L1" "$L2" "$L3"; do launchctl bootout "$DOMAIN/$l" 2>/dev/null || true; done
 if [[ "${1:-}" == "uninstall" ]]; then
   rm -f "$AGENTS/$L1.plist" "$AGENTS/$L2.plist"
   echo "removed $L1 and $L2 (config kept at $ENV_FILE)"
@@ -71,4 +73,6 @@ if [[ -f "$HERE/jobs.mjs" ]]; then
   write_plist "$L2" jobs.mjs '<key>StartInterval</key><integer>120</integer>'
   echo "installed $L2: every 2 min (log: $LOG_DIR/$L2.log)"
 fi
+write_plist "$L3" qa-upload.mjs '<key>StartInterval</key><integer>900</integer>'
+echo "installed $L3: every 15 min (log: $LOG_DIR/$L3.log)"
 echo "snapshot one company now:  cd $HERE && npm run snapshot -- --company <id>"
