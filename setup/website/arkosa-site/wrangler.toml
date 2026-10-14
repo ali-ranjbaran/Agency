@@ -1,0 +1,29 @@
+# Cloudflare Pages config for thearkosa.com.
+# `name` must match the Pages project name in the Cloudflare dashboard.
+# Once this file exists, it is the source of truth for bindings and vars;
+# dashboard edits to those are overridden on the next deploy.
+name = "arkosa-site"
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "./out"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "arkosa"
+database_id = "37b4997f-2548-4ed2-bdf8-257ee0d19a63"
+migrations_dir = "migrations"
+
+[vars]
+SITE_ORIGIN = "https://thearkosa.com"
+# Hard caps. Each one stops spend or abuse even if everything else fails.
+INTAKE_PER_IP_PER_HOUR = "3"
+INTAKE_PER_DAY = "40"
+DEMO_SMS_PER_DAY = "30"
+DEMO_BUSINESS_NAME = "Northgate Heating & Air"
+
+# Secrets (never in this file). Set each with:
+#   npx wrangler pages secret put <NAME>
+#   TURNSTILE_SECRET     Turnstile widget secret key
+#   IP_SALT              any long random string (openssl rand -hex 32)
+#   TWILIO_ACCOUNT_SID   Twilio account SID
+#   TWILIO_AUTH_TOKEN    Twilio auth token (also used to verify webhook signatures)
+#   TWILIO_DEMO_NUMBER   the demo line in E.164, e.g. +13065550123

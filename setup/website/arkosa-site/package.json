@@ -1,0 +1,30 @@
+{
+  "name": "arkosa-site",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck:functions": "tsc -p tsconfig.functions.json",
+    "db:migrate": "wrangler d1 migrations apply arkosa --remote",
+    "deploy": "next build && wrangler pages deploy"
+  },
+  "dependencies": {
+    "next": "^15.5.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.0",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^5.6.0",
+    "@types/react": "^19.0.0",
+    "@types/node": "^22.0.0",
+    "wrangler": "^4.40.0",
+    "@cloudflare/workers-types": "^5.20261006.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261006.1": true
+  }
+}

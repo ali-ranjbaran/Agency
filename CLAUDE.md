@@ -13,17 +13,17 @@ maintenance protocol.
 <!-- TODO: one paragraph. What the agency does, the niche, the ICP, the positioning. -->
 
 We build conversion-focused websites, configured CRM systems and automations for
-[NICHE] businesses in [GEOGRAPHY]. One operator. The reusable asset is the skills
+HVAC businesses in Saskatoon, SK. One operator. The reusable asset is the skills
 library, not the client list.
 
-Three service levels:
-- **L1** — website rebuild. Entry product, first dollar, proof.
-- **L2** — CRM setup + the four core automations, on a monthly retainer.
-- **L3** — 5–25 automations behind one client dashboard.
+Three service levels, named on the offer ladder (plan v4) as Entry / Core / Later:
+- **L1 = Entry** — website rebuild. First dollar, proof.
+- **L2 = Core** — CRM setup + the four core automations, on a monthly retainer.
+- **L3 = Later** — 5–25 automations behind one client dashboard.
 
 ## Voice
 
-<!-- TODO: paste two real examples of how you actually write to a prospect. -->
+<!-- TODO (pending): needs 2 real messages you've sent to a prospect. Don't invent them. -->
 
 Plain, specific, short. Name the number. No hype adjectives, no "revolutionary", no
 "leverage", no exclamation marks. Say what the thing does, not what category it's in.
@@ -37,11 +37,12 @@ Never write "AI-powered" in client-facing copy — clients buy outcomes, not the
 - One number, not a menu. Tool costs are bundled into the price.
 - Payment upfront, always, before work starts. Retainers auto-charge monthly in
   advance.
-- <!-- TODO: current pricing per level -->
+- <!-- TODO: pricing per level, pending pricing talk -->
 
 ## Delivery standards
 
-"Done" means it passed `/site-qa-checklist` with no failures. Specifically:
+"Done" means it passed `/qa-site` with no failures. `qa-site` isn't built yet; until it
+is, this list is the gate:
 - Forms tested end-to-end into the CRM, with the follow-up automation observed firing
 - WCAG 2.1 AA as a floor, not an aspiration
 - Lighthouse performance 90+
@@ -62,8 +63,30 @@ Delivery hours per site must trend down every month. If they don't, a skill is m
 - **Get consent before recording any call.**
 - Pull current library docs (context7) before writing code against any API. Do not rely
   on memory for API surfaces.
-- Client personal data never enters this repo. Lists live in the sending tool, contacts
-  live in the CRM.
+- Client personal data never enters this repo. Prospect lists live in the sending tool
+  (Instantly), contacts live in the CRM.
+
+## Debugging
+
+- Reproduce first. No fix is proposed before the failure is observed.
+- Read the actual error and logs, verbatim. If you can't see the logs, getting access is
+  step one.
+- State the hypothesis before changing anything. One change at a time.
+- Re-run against the observed failure, not a test that only proves it compiles. Three
+  cycles with no progress: stop and question the assumption underneath.
+- Never claim a fix without running it. Never silence an error. Call a workaround a
+  workaround and name the likely real cause. Use the bundled `/debug` and `/verify`.
+
+## Screenshot fixes
+
+- Read the screenshot first. Name what's wrong in design terms (spacing, hierarchy,
+  contrast, alignment, density) before touching code. If it disagrees with the
+  description, ask.
+- One category of change per pass. After each change, list the breakpoints to
+  re-screenshot.
+- Prefer removing over adding. Never restyle what wasn't mentioned.
+- Three rounds on the same element: stop and say the layout is wrong.
+- Design tokens only; no one-off hex values or magic paddings.
 
 ## Map
 
@@ -74,6 +97,8 @@ templates/                                  site templates, contracts, proposals
 content/                                    proof posts, Loom scripts, screenshots
 admin/metrics.md                            the weekly numbers
 admin/decisions.md                          why we chose what we chose
+agency-plan-v4.md                           the operating plan (phases, gates, offer)
+setup/                                      our own site (thearkosa.com) and brand assets
 ```
 
 Naming: kebab-case everywhere. Client folders use the trading name, lowercased.
