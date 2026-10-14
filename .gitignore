@@ -8,3 +8,8 @@
 node_modules/
 .DS_Store
 *.zip
+
+# Build output and local tool state
+dist/
+.wrangler/
+*.tsbuildinfo
