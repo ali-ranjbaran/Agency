@@ -2,6 +2,17 @@
 
 Why we chose what we chose. Newest first. One entry per decision.
 
+## 2026-10-14 · Shared site-checks module for audit-site and qa-site
+
+qa-site was the second build of the same site checks audit-site already had. The common part
+moved to `skills/_shared/site-checks/`: the SSRF-safe fetch, the HTML helpers, the vendor
+fingerprints, and `parsePage()` page facts plus neutral network checks that return evidence but
+no verdict. Each skill keeps its own standard: audit-site grades pass/warn/fail for a sales
+audit and maps findings to the offer; qa-site applies the launch gate (PASS/FAIL/UNVERIFIED/N/A,
+any FAIL blocks). audit-site's output was diffed before/after the move and is identical.
+**Why `_shared` outside the departments:** it isn't a skill and must not be linked as one.
+**Revisit if:** a third skill needs it (then consider a package with its own tests and version).
+
 ## 2026-10-13 · Prospect lists live in the sending tool, not the repo
 
 **Was:** plan v4's Phase 0 exit check said `admin/prospects` holds the 50 contacts.

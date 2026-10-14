@@ -11,92 +11,18 @@
  * Only public http(s) sites on ports 80/443 are fetched. Private, loopback and
  * link-local addresses are refused at every redirect hop.
  */
-import { lookup } from "node:dns/promises";
-import { isIP } from "node:net";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+// Shared with qa-site: safe fetch (SSRF guard), HTML helpers, vendor detection, page facts.
+import { assertPublicUrl, safeGet } from "../../../_shared/site-checks/fetch.mjs";
+import { PHONE_RE, blocks, decode, has, tags, textOf } from "../../../_shared/site-checks/html.mjs";
+import { detect } from "../../../_shared/site-checks/detect.mjs";
+import { parsePage } from "../../../_shared/site-checks/page-checks.mjs";
 
-const UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1 ArkosaAudit/1";
-const MAX_BYTES = 3 * 1024 * 1024;
+export { assertPublicUrl, safeGet };
+
 const YEAR = new Date().getFullYear();
-
-// ---- safe fetch ---------------------------------------------------------------
-function privateIp(ip) {
-  if (isIP(ip) === 6) {
-    const v = ip.toLowerCase();
-    if (v.startsWith("::ffff:")) return privateIp(v.slice(7));
-    return v === "::1" || v === "::" || v.startsWith("fc") || v.startsWith("fd") || v.startsWith("fe8") || v.startsWith("fe9") || v.startsWith("fea") || v.startsWith("feb");
-  }
-  const [a, b] = ip.split(".").map(Number);
-  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224;
-}
-
-export async function assertPublicUrl(raw) {
-  let u;
-  try { u = new URL(raw); } catch { throw new Error("not a valid URL"); }
-  if (!["http:", "https:"].includes(u.protocol)) throw new Error("only http and https URLs");
-  if (u.username || u.password) throw new Error("URLs with credentials are refused");
-  if (u.port && !["80", "443"].includes(u.port) && process.env.AUDIT_ALLOW_LOCAL !== "1") throw new Error("only ports 80 and 443");
-  const host = u.hostname.replace(/^\[|\]$/g, "");
-  if (process.env.AUDIT_ALLOW_LOCAL === "1") return u;   // tests only; the dashboard never sets it
-  if (host === "localhost" || host.endsWith(".local") || host.endsWith(".internal") || !host.includes(".")) throw new Error("not a public hostname");
-  const addrs = isIP(host) ? [{ address: host }] : await lookup(host, { all: true });
-  if (!addrs.length || addrs.some((x) => privateIp(x.address))) throw new Error("resolves to a private address");
-  return u;
-}
-
-/** GET with manual redirects, each hop re-checked. Returns { status, url, headers, text, hops }. */
-export async function safeGet(raw, { timeout = 20_000, maxBytes = MAX_BYTES } = {}) {
-  let url = raw;
-  const hops = [];
-  for (let i = 0; i < 6; i++) {
-    const u = await assertPublicUrl(url);
-    const res = await fetch(u, { redirect: "manual", headers: { "user-agent": UA, accept: "text/html,*/*" }, signal: AbortSignal.timeout(timeout) });
-    if (res.status >= 300 && res.status < 400 && res.headers.get("location")) {
-      hops.push({ from: u.href, status: res.status });
-      url = new URL(res.headers.get("location"), u).href;
-      await res.body?.cancel();
-      continue;
-    }
-    const reader = res.body?.getReader();
-    const chunks = [];
-    let size = 0;
-    while (reader) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      size += value.length;
-      if (size > maxBytes) { await reader.cancel(); break; }
-      chunks.push(value);
-    }
-    const text = Buffer.concat(chunks.map((c) => Buffer.from(c))).toString("utf8");
-    return { status: res.status, url: u.href, headers: Object.fromEntries(res.headers), text, hops, truncated: size > maxBytes };
-  }
-  throw new Error("too many redirects");
-}
-
-// ---- tiny HTML helpers --------------------------------------------------------
-const ENT = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", nbsp: " ", ndash: "–", mdash: "—", rsquo: "'", lsquo: "'", rdquo: '"', ldquo: '"', copy: "©", hellip: "…" };
-const decode = (s) => s.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (m, e) => {
-  if (e[0] === "#") { const n = e[1].toLowerCase() === "x" ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10); return Number.isFinite(n) ? String.fromCodePoint(n) : m; }
-  return ENT[e.toLowerCase()] ?? m;
-});
-const attrs = (s) => {
-  const out = {};
-  for (const m of s.matchAll(/([^\s=/>"']+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>"']+)))?/g)) out[m[1].toLowerCase()] = decode(m[2] ?? m[3] ?? m[4] ?? "");
-  return out;
-};
-const tags = (html, name) => [...html.matchAll(new RegExp(`<${name}\\b([^>]*)>`, "gi"))].map((m) => ({ ...attrs(m[1]), _index: m.index }));
-const blocks = (html, name) => [...html.matchAll(new RegExp(`<${name}\\b([^>]*)>([\\s\\S]*?)</${name}>`, "gi"))].map((m) => ({ attrs: attrs(m[1]), inner: m[2], index: m.index }));
-const textOf = (html) => decode(html
-  .replace(/<(script|style|noscript|svg|template)\b[\s\S]*?<\/\1>/gi, " ")
-  .replace(/<br\s*\/?>/gi, "\n")
-  .replace(/<\/(p|div|section|header|footer|li|h[1-6]|tr|article|nav|main|aside|form|button|a)>/gi, "\n")
-  .replace(/<[^>]+>/g, " "))
-  .replace(/[ \t\f\v\r]+/g, " ").replace(/ *\n */g, "\n").replace(/\n{2,}/g, "\n").trim();
-const has = (s, re) => re.test(s);
-const PHONE_RE = /(?:\+?1[\s.-]?)?\(?\b([2-9]\d{2})\)?[\s.-]?(\d{3})[\s.-](\d{4})\b/g;
 
 const CITIES = ["Saskatoon", "Regina", "Prince Albert", "Moose Jaw", "Swift Current", "Yorkton", "North Battleford", "Estevan", "Weyburn",
   "Lloydminster", "Martensville", "Warman", "Humboldt", "Melfort", "Kindersley", "Calgary", "Edmonton", "Red Deer", "Lethbridge",
@@ -105,19 +31,6 @@ const CITIES = ["Saskatoon", "Regina", "Prince Albert", "Moose Jaw", "Swift Curr
 const FILLER = [/trusted local experts?/i, /take pride in (our|every)/i, /customer satisfaction is our/i, /serving the community for years/i,
   /second to none/i, /one[- ]stop shop/i, /quality (work|service) at (an )?affordable price/i, /no job (is )?too (big|small)/i,
   /your satisfaction is (our|guaranteed)/i, /best in the business/i, /top[- ]notch/i, /state[- ]of[- ]the[- ]art/i];
-const DETECT = {
-  analytics: { "Google Analytics 4": /gtag\/js\?id=G-|['"]G-[A-Z0-9]{6,}['"]/, "Google Tag Manager": /googletagmanager\.com\/gtm\.js|GTM-[A-Z0-9]{4,}/, "Universal Analytics": /google-analytics\.com\/analytics\.js|UA-\d{4,}-\d/, "Meta Pixel": /connect\.facebook\.net\/[^"']*fbevents\.js|fbq\(/, "Microsoft Clarity": /clarity\.ms\/tag/, Hotjar: /static\.hotjar\.com/ },
-  consent: { Cookiebot: /cookiebot/i, OneTrust: /onetrust|optanon/i, CookieYes: /cookieyes|cookie-law-info/i, Termly: /termly\.io/i, iubenda: /iubenda/i, Osano: /osano/i, Complianz: /complianz|cmplz/i, "Consent banner (generic)": /cookie[-_ ]?(consent|banner|notice)|accept (all )?cookies/i },
-  callTracking: { CallRail: /callrail/i, CallTrackingMetrics: /calltrackingmetrics|tctm\.co/i, WhatConverts: /whatconverts/i },
-  fsm: { Jobber: /getjobber\.com|clienthub\.getjobber|jobber/i, "Housecall Pro": /housecallpro/i, ServiceTitan: /servicetitan/i },
-  crm: { "GoHighLevel / LeadConnector": /leadconnectorhq|msgsndr|gohighlevel|link\.msgsndr/i, HubSpot: /js\.hs-scripts\.com|hsforms|hubspot/i },
-  booking: { Calendly: /calendly\.com/i, Jobber: /clienthub\.getjobber|getjobber\.com\/.*request/i, "Housecall Pro": /book\.housecallpro|housecallpro\.com\/book/i, ServiceTitan: /servicetitan.*(scheduler|schedul)/i, "LeadConnector calendar": /leadconnectorhq\.com\/widget\/booking|msgsndr.*calendar/i },
-  chat: { Podium: /podium\.com/i, Birdeye: /birdeye/i, "tawk.to": /tawk\.to/i, Intercom: /intercom/i, Drift: /drift\.com/i, LiveChat: /livechatinc/i, "LeadConnector chat": /leadconnectorhq\.com\/.*chat|chat-widget/i, "Facebook Messenger": /customerchat/i },
-  reviews: { Elfsight: /elfsight/i, Trustindex: /trustindex/i, Birdeye: /birdeye/i, Podium: /podium/i, "Google reviews embed": /google.*reviews?.*widget|grw-/i, Trustpilot: /trustpilot/i, HomeStars: /homestars/i },
-  carousel: { Swiper: /swiper/i, Slick: /slick(-slider|\.min|-carousel)|class=["'][^"']*\bslick\b/i, Owl: /owl-carousel/i, Flickity: /flickity/i, Splide: /splide/i, "Revolution Slider": /revslider|rev_slider/i, "Generic carousel": /class=["'][^"']*\b(carousel|slider|hero-slider)\b/i },
-  builder: { Wix: /static\.wixstatic|wix\.com|_wixCIDX/i, Squarespace: /squarespace/i, WordPress: /wp-content|wp-includes/i, "GoDaddy builder": /img1\.wsimg\.com|godaddy/i, Weebly: /weebly/i, Duda: /dudaone|multiscreensite/i, Webflow: /webflow/i, Shopify: /cdn\.shopify/i, "Next.js": /\/_next\/static/i },
-};
-const detect = (hay, group) => Object.entries(DETECT[group]).filter(([, re]) => re.test(hay)).map(([k]) => k);
 
 // ---- PageSpeed Insights ---------------------------------------------------------
 async function pagespeed(url, key) {
@@ -163,24 +76,13 @@ export async function runChecks(input, { outDir, psiKey = process.env.PSI_API_KE
 
   const text = textOf(html);
   const lower = text.toLowerCase();
-  const head = (html.match(/<head\b[\s\S]*?<\/head>/i) ?? [""])[0];
-  const scriptSrcs = tags(html, "script").map((t) => t.src).filter(Boolean);
+  const page = parsePage(html);
+  const { head, scriptSrcs, links, aBlocks, title, metas, metaDesc, viewport, ogSite, h1s, htmlLang, ldjson, schemaTypes } = page;
   const hay = html; // detection runs over raw HTML: script srcs, inline config, class names
-  const links = tags(html, "a").map((t) => ({ ...t, href: t.href ?? "" }));
-  const aBlocks = blocks(html, "a").map((b) => ({ href: b.attrs.href ?? "", text: textOf(b.inner) }));
   const buttons = [...blocks(html, "button").map((b) => textOf(b.inner)), ...tags(html, "input").filter((t) => /submit|button/i.test(t.type ?? "")).map((t) => t.value ?? "")];
-  const title = decode((head.match(/<title[^>]*>([\s\S]*?)<\/title>/i) ?? [, ""])[1]).trim();
-  const metas = tags(head, "meta");
-  const metaDesc = metas.find((m) => (m.name ?? "").toLowerCase() === "description")?.content ?? "";
-  const viewport = metas.find((m) => (m.name ?? "").toLowerCase() === "viewport")?.content ?? "";
-  const ogSite = metas.find((m) => (m.property ?? "").toLowerCase() === "og:site_name")?.content ?? "";
-  const h1s = blocks(html, "h1").map((b) => textOf(b.inner)).filter(Boolean);
-  const htmlLang = (html.match(/<html\b([^>]*)>/i) ?? [, ""])[1];
   const imgs = tags(html, "img");
   const forms = blocks(html, "form");
   const iframes = tags(html, "iframe").map((t) => t.src ?? "");
-  const ldjson = blocks(html, "script").filter((b) => /ld\+json/i.test(b.attrs.type ?? "")).map((b) => b.inner);
-  const schemaTypes = [...new Set(ldjson.flatMap((j) => [...j.matchAll(/"@type"\s*:\s*(?:"([^"]+)"|\[([^\]]+)\])/g)].flatMap((m) => (m[1] ?? m[2]).split(",").map((s) => s.replace(/["\s]/g, "")))))];
 
   // Phones
   const telLinks = links.filter((l) => /^tel:/i.test(l.href));

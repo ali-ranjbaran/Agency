@@ -105,6 +105,8 @@ function notify(title, text) {
 const slug = (s) => String(s ?? "lead").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40) || "lead";
 
 // ---- main -------------------------------------------------------------------
+// qa-site's marked test leads (…@qa-test.invalid) are never briefed: archive them first.
+d1(`UPDATE leads SET status='archived', updated_at=datetime('now') WHERE status IN ('new','processing') AND email LIKE '%@qa-test.invalid'`);
 const leads = d1(
   `SELECT id, created_at, name, company, email, phone, trade, city, message,
           calc_missed_per_week, calc_book_rate, calc_job_value, attempts

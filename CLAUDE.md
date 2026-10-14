@@ -41,8 +41,8 @@ Never write "AI-powered" in client-facing copy — clients buy outcomes, not the
 
 ## Delivery standards
 
-"Done" means it passed `/qa-site` with no failures. `qa-site` isn't built yet; until it
-is, this list is the gate:
+"Done" means `/qa-site <url> --mode client-staging|production` reports **CLEARED**.
+LAUNCH BLOCKED (a FAIL) or NOT CLEARED (UNVERIFIED items) means not done. It checks:
 - Forms tested end-to-end into the CRM, with the follow-up automation observed firing
 - WCAG 2.1 AA as a floor, not an aspiration
 - Lighthouse performance 90+
@@ -92,6 +92,7 @@ Delivery hours per site must trend down every month. If they don't, a skill is m
 
 ```
 skills/<department>/<skill-name>/SKILL.md   source of truth; symlinked to ~/.claude/skills/
+skills/_shared/                             code shared by skills (no SKILL.md, not linked)
 clients/<client-name>/                      context.md, spec.md, transcripts/
 templates/                                  site templates, contracts, proposals
 content/                                    proof posts, Loom scripts, screenshots
