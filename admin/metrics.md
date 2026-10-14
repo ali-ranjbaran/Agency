@@ -1,5 +1,5 @@
 # Arkosa metrics
-Phase: 0 · Mode: term (15 h) · Universe (Saskatoon HVAC): __ · Updated: YYYY-MM-DD
+Phase: 0 · Mode: term (15 h) · Universe (Saskatoon HVAC): 19 documented (floor; est. 35–60, see admin/ICP.md) · Updated: YYYY-MM-DD
 
 ## Weekly
 | Week of | Sales h | Build h | New contacts | Cum. contacts | Emails sent | Replies | Positive | Dials | Convos | Demo-number calls | Discovery | Proposals | Closes |
