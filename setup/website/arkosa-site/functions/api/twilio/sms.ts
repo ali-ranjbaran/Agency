@@ -1,44 +1,37 @@
 /**
  * POST /api/twilio/sms — Twilio "A message comes in" webhook for the demo line.
  *
- * STOP / START are recorded in opt_outs. Twilio's own opt-out handling sends
- * the carrier confirmation and blocks further sends on its side too; this
- * table is our copy, checked before every text-back.
+ * STOP / START: Twilio handles the opt-out itself on long codes, sends the carrier
+ * confirmation, and still forwards the message here with OptOutType set (docs:
+ * Advanced Opt-Out). We keep our own copy in demo_opt_outs, checked before every send.
+ * HELP is left to Twilio.
  *
- * Any other reply gets one fixed explanation per number per day. Nothing a
- * prospect texts here is stored.
+ * Anything else: one canned reply showing what the owner would see, only to a caller
+ * who got a text-back in the last 24 h and hasn't had the reply yet. After that,
+ * silence. No AI, no thread. The message text is never stored.
  */
 import type { Env } from "../../../server/env";
+import { int } from "../../../server/env";
 import { twiml, xmlEscape } from "../../../server/http";
 import { isNanp, keyword, readVerifiedTwilioForm } from "../../../server/twilio";
+import { alertOnce, business, capHit, hashCaller, replyBody, reserveReply, setOptOut } from "../../../server/demo-line";
 
-export const DEMO_REPLY =
-  "This is an Arkosa demo line. On a real setup, your reply goes straight to the owner's phone so they can call you back. Reply STOP to opt out.";
-
-export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
+export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   const p = await readVerifiedTwilioForm(request, env.TWILIO_AUTH_TOKEN);
   if (!p) return new Response("forbidden", { status: 403 });
-  const from = p.From;
-  if (!isNanp(from)) return twiml();
+  if (p.To !== env.TWILIO_DEMO_NUMBER || !isNanp(p.From) || !env.PHONE_HASH_KEY) return twiml();
 
-  const kw = keyword(p.Body);
-  if (kw === "stop") {
-    await env.DB.prepare("INSERT OR IGNORE INTO opt_outs (phone) VALUES (?1)").bind(from).run();
-    return twiml(); // Twilio sends the opt-out confirmation itself
+  const caller = await hashCaller(env.PHONE_HASH_KEY, p.From);
+  const kw = keyword(p.Body, p.OptOutType);
+  if (kw === "stop" || kw === "start") {
+    await setOptOut(env, caller, kw === "stop");
+    return twiml(); // Twilio sends the confirmation itself
   }
-  if (kw === "start") {
-    await env.DB.prepare("DELETE FROM opt_outs WHERE phone = ?1").bind(from).run();
-    return twiml();
+  if (kw === "help") return twiml();
+
+  if (await reserveReply(env, caller)) {
+    return twiml(`<Message>${xmlEscape(replyBody(business(env), int(env.DEMO_CALLBACK_MIN, 15)))}</Message>`);
   }
-
-  const row = await env.DB.prepare(
-    `SELECT
-       (SELECT COUNT(*) FROM opt_outs WHERE phone = ?1) AS opted_out,
-       (SELECT COUNT(*) FROM demo_sms WHERE phone = ?1 AND kind = 'reply'
-          AND created_at > datetime('now','-1 day')) AS recent`,
-  ).bind(from).first<{ opted_out: number; recent: number }>();
-  if (row?.opted_out || row?.recent) return twiml();
-
-  await env.DB.prepare("INSERT INTO demo_sms (phone, kind, result) VALUES (?1, 'reply', 'sent')").bind(from).run();
-  return twiml(`<Message>${xmlEscape(DEMO_REPLY)}</Message>`);
+  waitUntil(capHit(env).then((cap) => (cap ? alertOnce(env, cap) : undefined)).catch(() => undefined));
+  return twiml();
 };

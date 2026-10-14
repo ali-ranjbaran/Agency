@@ -12,13 +12,23 @@ database_name = "arkosa"
 database_id = "37b4997f-2548-4ed2-bdf8-257ee0d19a63"
 migrations_dir = "migrations"
 
+# Cap alerts: email to the operator through the arkosa-alerts Worker (../arkosa-alerts).
+# Pages Functions can't hold a send_email binding themselves; a service binding can.
+[[services]]
+binding = "ALERTS"
+service = "arkosa-alerts"
+
 [vars]
 SITE_ORIGIN = "https://thearkosa.com"
 # Hard caps. Each one stops spend or abuse even if everything else fails.
 INTAKE_PER_IP_PER_HOUR = "3"
 INTAKE_PER_DAY = "40"
-DEMO_SMS_PER_DAY = "30"
-DEMO_BUSINESS_NAME = "Northgate Heating & Air"
+# Demo line. Every text counts toward the day and month caps (text-backs and replies).
+DEMO_SMS_CALLER_WINDOW_MIN = "10"
+DEMO_SMS_PER_DAY = "50"
+DEMO_SMS_PER_MONTH = "300"
+DEMO_BUSINESS_NAME = "Northgate Heating"
+DEMO_CALLBACK_MIN = "15"
 
 # Secrets (never in this file). Set each with:
 #   npx wrangler pages secret put <NAME>
@@ -27,3 +37,5 @@ DEMO_BUSINESS_NAME = "Northgate Heating & Air"
 #   TWILIO_ACCOUNT_SID   Twilio account SID
 #   TWILIO_AUTH_TOKEN    Twilio auth token (also used to verify webhook signatures)
 #   TWILIO_DEMO_NUMBER   the demo line in E.164, e.g. +13065550123
+#   PHONE_HASH_KEY       any long random string (openssl rand -hex 32); hashes caller numbers
+# Local dev: the same names in .dev.vars (gitignored). Names only: .env.example.

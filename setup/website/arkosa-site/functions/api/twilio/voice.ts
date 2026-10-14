@@ -2,49 +2,35 @@
  * POST /api/twilio/voice — Twilio "A call comes in" webhook for the demo line.
  *
  * The call is never answered: <Reject reason="busy"> as the first verb means
- * Twilio doesn't pick up and doesn't bill the call. The caller hears busy and
- * gets the text-back a few seconds later, exactly like a missed call.
+ * Twilio doesn't pick up and doesn't bill the call (docs: TwiML <Reject>). The
+ * caller hears busy and gets the text-back a few seconds later, like a missed call.
  *
- * Gates before any SMS goes out: valid Twilio signature, +1 number only, not on
- * the STOP list, max one text-back per number per 24 h, global daily cap.
+ * Gates before any SMS goes out: valid Twilio signature, a call TO the demo number
+ * FROM a +1 number, then one SQL statement that logs the call to demo_calls and
+ * reserves a slot only if the caller isn't opted out, hasn't had a text in the last
+ * DEMO_SMS_CALLER_WINDOW_MIN minutes, and the day and month caps have room.
  */
 import type { Env } from "../../../server/env";
-import { int } from "../../../server/env";
 import { twiml } from "../../../server/http";
 import { isNanp, readVerifiedTwilioForm, sendSms } from "../../../server/twilio";
+import { alertOnce, business, hashCaller, last4, markSendFailed, reserveTextBack, textBackBody } from "../../../server/demo-line";
 
 const REJECT = '<Reject reason="busy"/>';
 
-export const textBackBody = (business: string) =>
-  `Sorry we missed you, this is ${business}. What's going on with your furnace? ` +
-  `(Arkosa demo line.) Reply STOP to opt out.`;
-
 async function textBack(env: Env, from: string, callSid: string) {
-  const log = (result: string) =>
-    env.DB.prepare("INSERT INTO demo_sms (phone, kind, call_sid, result) VALUES (?1, 'textback', ?2, ?3)")
-      .bind(from, callSid, result).run();
-
-  const row = await env.DB.prepare(
-    `SELECT
-       (SELECT COUNT(*) FROM opt_outs WHERE phone = ?1) AS opted_out,
-       (SELECT COUNT(*) FROM demo_sms WHERE phone = ?1 AND kind = 'textback' AND result = 'sent'
-          AND created_at > datetime('now','-1 day')) AS recent,
-       (SELECT COUNT(*) FROM demo_sms WHERE result = 'sent' AND created_at > datetime('now','-1 day')) AS day`,
-  ).bind(from).first<{ opted_out: number; recent: number; day: number }>();
-
-  if (row?.opted_out) return log("skipped:opted_out");
-  if (row?.recent) return log("skipped:recent");
-  if ((row?.day ?? 0) >= int(env.DEMO_SMS_PER_DAY, 30)) return log("skipped:daily_cap");
-
-  const res = await sendSms(env, from, textBackBody(env.DEMO_BUSINESS_NAME || "Northgate Heating & Air"));
-  return log(res.ok ? "sent" : `error:${res.status}`);
+  if (!env.PHONE_HASH_KEY) return; // fail closed: no key, no log, no text
+  const row = await reserveTextBack(env, await hashCaller(env.PHONE_HASH_KEY, from), last4(from), callSid);
+  if (!row) return;
+  if (row.skip_reason === "daily_cap" || row.skip_reason === "monthly_cap") return alertOnce(env, row.skip_reason);
+  if (!row.sms_sent) return;
+  const res = await sendSms(env, from, textBackBody(business(env)));
+  if (!res.ok) await markSendFailed(env, row.id, res.status);
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env, waitUntil }) => {
   const p = await readVerifiedTwilioForm(request, env.TWILIO_AUTH_TOKEN);
   if (!p) return new Response("forbidden", { status: 403 });
 
-  // Only calls placed TO the demo number, FROM a Canadian/US number.
   if (p.To === env.TWILIO_DEMO_NUMBER && isNanp(p.From)) {
     waitUntil(textBack(env, p.From, p.CallSid ?? "").catch(() => undefined));
   }
