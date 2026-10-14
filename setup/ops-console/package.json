@@ -14,6 +14,7 @@
     "db:migrate": "wrangler d1 migrations apply arkosa --remote",
     "deploy": "npm run typecheck && npm test && vite build && wrangler pages deploy",
     "reviews:pull": "node scripts/reviews-pull.mjs",
+    "metrics:pull": "node scripts/metrics-pull.mjs",
     "lint": "oxlint"
   },
   "dependencies": {

@@ -45,6 +45,9 @@ hashing its phone with the same `PHONE_HASH_KEY` the demo line uses.
   badge; screenshots use the same signed-URL route as site snapshots.
 - **`npm run reviews:pull`** writes open comments, change requests and the latest sign-offs to
   `~/Arkosa-leads/reviews/<date>.md`. SELECT only. Local D1 by default; add `-- --remote` for production.
+- **`npm run metrics:pull`** writes this week's counts (contacts added, cumulative, ready to send, inbound
+  leads, demo-line calls) into `admin/metrics.md`: three cells of the Weekly row plus a "Console counts"
+  table. Aggregates only; hand-filled cells are kept. Same read-only / `--remote` rule.
 
 ## Tests (all local, fictional data only)
 

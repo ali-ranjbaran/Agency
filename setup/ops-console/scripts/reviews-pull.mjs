@@ -6,28 +6,15 @@
  * when the operator passes it.
  *   npm run reviews:pull [-- --remote] [-- --persist-to <dir>] [-- --out <file>]
  */
-import { spawnSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { cliArgs, d1Reader } from "./d1-read.mjs";
 
-const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const args = process.argv.slice(2);
-const opt = (k) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : undefined; };
-const remote = args.includes("--remote");
-const persist = opt("--persist-to");
+const { remote, persist, out: outArg } = cliArgs();
 const date = new Date(Date.now() - 6 * 3600_000).toISOString().slice(0, 10);
-const out = opt("--out") ?? join(homedir(), "Arkosa-leads", "reviews", `${date}.md`);
-
-export function query(sql) {
-  if (!/^\s*SELECT\b/i.test(sql) || /;\s*\S/.test(sql)) throw new Error("reviews:pull runs single SELECT statements only");
-  const where = remote ? ["--remote"] : ["--local", ...(persist ? ["--persist-to", persist] : [])];
-  const r = spawnSync("npx", ["--no-install", "wrangler", "d1", "execute", "arkosa", ...where, "--json", "--command", sql],
-    { cwd: ROOT, encoding: "utf8", env: { ...process.env, WRANGLER_SEND_METRICS: "false" } });
-  if (r.status !== 0) throw new Error(r.stderr || r.stdout);
-  return JSON.parse(r.stdout.slice(r.stdout.indexOf("[")))[0].results;
-}
+const out = outArg ?? join(homedir(), "Arkosa-leads", "reviews", `${date}.md`);
+const query = d1Reader({ remote, persist });
 
 const comments = query(`SELECT doc_path, content_sha, anchor, body, reviewer, at FROM doc_comments WHERE resolved = 0 ORDER BY doc_path, id`);
 // Latest review per doc, if it asks for changes.
