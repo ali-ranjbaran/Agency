@@ -104,7 +104,7 @@ Reminder:
 Delivering the quote:
 
 > Hi {CUSTOMER_FIRST_NAME}, here's the quote you asked for from {CLIENT_NAME}:
-> {QUOTE_LINK}. Questions? Reply here or call {CLIENT_PHONE}.
+> {QUOTE_LINK}. Questions? Reply here or call {CLIENT_PHONE}. Reply STOP to opt out.
 
 Follow-up:
 
@@ -122,7 +122,7 @@ Follow-up:
 
 > If you smell gas or a CO alarm is sounding: leave the building now, then call 911 or
 > the gas emergency line {GAS_UTILITY_EMERGENCY_NUMBER} from outside. Don't use switches
-> or flames. {CLIENT_NAME} has been alerted and will call you.
+> or flames. {CLIENT_NAME} has been alerted and will call you. Reply STOP to opt out.
 
 ## 6 · STOP and other replies
 

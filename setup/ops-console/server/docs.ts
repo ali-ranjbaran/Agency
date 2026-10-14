@@ -32,17 +32,20 @@ export async function qaShotUrls(env: Env, d: { qa_id?: number; shots?: string[]
   return Promise.all(d.shots.map((_, i) => snapshotUrl(env, d.qa_id!, `qa-${i}`)));
 }
 
+import { approvedShas } from "./approved";
+export { approvedShas };
+
 type ReviewRow = { doc_path: string; content_sha: string; status: string; note: string | null; reviewer: string; at: string };
 
 export async function docSummaries(env: Env, tenant: string) {
-  const [reviews, snaps, comments, qa] = await Promise.all([
+  const [reviews, comments, qa] = await Promise.all([
     env.DB.prepare("SELECT doc_path, content_sha, status, note, reviewer, at FROM doc_reviews WHERE tenant = ?1 ORDER BY id").bind(tenant).all<ReviewRow>(),
-    env.DB.prepare("SELECT doc_path, content_sha FROM doc_approved_snapshots WHERE tenant = ?1 ORDER BY id").bind(tenant).all<{ doc_path: string; content_sha: string }>(),
     env.DB.prepare("SELECT doc_path, count(*) AS n FROM doc_comments WHERE tenant = ?1 AND resolved = 0 GROUP BY doc_path").bind(tenant).all<{ doc_path: string; n: number }>(),
     qaDocs(env, tenant),
   ]);
   return [...DOCS, ...qa].map((d) => {
-    const st = docStatus(d.sha256, reviews.results.filter((r) => r.doc_path === d.path), snaps.results.filter((s) => s.doc_path === d.path).map((s) => s.content_sha));
+    const mine = reviews.results.filter((r) => r.doc_path === d.path);
+    const st = docStatus(d.sha256, mine, approvedShas(mine));
     return {
       path: d.path, title: d.title, kind: d.kind, sha256: d.sha256, commit: d.commit, dirty: d.dirty, ...markerCounts(d.content),
       verdict: "verdict" in d ? d.verdict : null,

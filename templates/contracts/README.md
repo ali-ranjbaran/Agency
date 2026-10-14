@@ -46,7 +46,7 @@ Never fill prices in the template. Fill per client, after the call.
 ## What the lawyer must check
 
 Every `[LAWYER]` tag marks a clause written by a non-lawyer. Counts at v0.1: msa 20,
-sow-entry 3, sow-core 4, casl-wording 10. The main questions:
+sow-entry 3, sow-core 4, casl-wording 11. The main questions:
 
 1. **MSA structure.** SOW-over-MSA precedence, assignment, governing law and the
    province-specific consumer or e-commerce rules that might apply to small businesses.

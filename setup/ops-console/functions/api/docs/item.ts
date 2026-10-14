@@ -1,6 +1,6 @@
 /** GET ?path=: one document's text, comments, review history and the last approved text (for the diff). */
 import type { Env, Who } from "../../../server/env";
-import { findAnyDoc, qaShotUrls } from "../../../server/docs";
+import { approvedShas, findAnyDoc, qaShotUrls } from "../../../server/docs";
 import { docStatus } from "../../../shared/docs";
 import { bad, json } from "../../../server/http";
 
@@ -16,8 +16,8 @@ export const onRequestGet: PagesFunction<Env, string, { who: Who }> = async ({ r
       .all<{ content_sha: string; content: string; at: string }>(),
     env.DB.prepare("SELECT id, content_sha, anchor, body, reviewer, resolved, at, resolved_at FROM doc_comments WHERE tenant = ?1 AND doc_path = ?2 ORDER BY id").bind(t, doc.path).all(),
   ]);
-  const st = docStatus(doc.sha256, reviews.results, snaps.results.map((s) => s.content_sha));
-  const approved = snaps.results.length ? snaps.results[snaps.results.length - 1] : null;
+  const st = docStatus(doc.sha256, reviews.results, approvedShas(reviews.results));
+  const approved = snaps.results.find((s) => s.content_sha === st.lastApprovedSha) ?? null;
   const { qa_id: _q, shots: _s, verdict: _v, ...plain } = doc;
   return json(200, {
     doc: plain, status: st.status, changed_since_approved: st.changedSinceApproved,

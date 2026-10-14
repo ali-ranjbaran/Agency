@@ -21,8 +21,8 @@ L3="com.arkosa.ops-qa"
 if [[ "$(uname)" != "Darwin" ]]; then echo "macOS only" >&2; exit 1; fi
 for l in "$L1" "$L2" "$L3"; do launchctl bootout "$DOMAIN/$l" 2>/dev/null || true; done
 if [[ "${1:-}" == "uninstall" ]]; then
-  rm -f "$AGENTS/$L1.plist" "$AGENTS/$L2.plist"
-  echo "removed $L1 and $L2 (config kept at $ENV_FILE)"
+  rm -f "$AGENTS/$L1.plist" "$AGENTS/$L2.plist" "$AGENTS/$L3.plist"
+  echo "removed $L1, $L2 and $L3 (config kept at $ENV_FILE)"
   exit 0
 fi
 

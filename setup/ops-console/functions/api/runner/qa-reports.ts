@@ -25,14 +25,18 @@ export const onRequestPost: PagesFunction<Env, string, { who: Who }> = async ({ 
   if (existing) return json(200, { id: existing.id, duplicate: true });
 
   const shots = form.getAll("shots").filter((f): f is File => f instanceof File).slice(0, 12);
-  const keys: string[] = [];
-  for (const f of shots) {
-    if (f.size > MAX || !["image/png", "image/jpeg"].includes(f.type)) return bad(`${f.name}: PNG or JPEG up to 3 MB`);
-    const key = `qa/${t}/${run}/${contentSha.slice(0, 12)}-${keys.length}.${f.type === "image/png" ? "png" : "jpg"}`;
-    await env.SNAPSHOTS.put(key, f.stream(), { httpMetadata: { contentType: f.type } });
-    keys.push(key);
+  // Validate every file before writing any, so a bad file leaves nothing behind in R2.
+  for (const f of shots) if (f.size > MAX || !["image/png", "image/jpeg"].includes(f.type)) return bad(`${f.name}: PNG or JPEG up to 3 MB`);
+  const keys = shots.map((f, i) => `qa/${t}/${run}/${contentSha.slice(0, 12)}-${i}.${f.type === "image/png" ? "png" : "jpg"}`);
+  for (let i = 0; i < shots.length; i++) await env.SNAPSHOTS.put(keys[i], shots[i].stream(), { httpMetadata: { contentType: shots[i].type } });
+  try {
+    const row = await env.DB.prepare("INSERT INTO qa_reports (tenant, run, content_sha, content, verdict, shots_json) VALUES (?1, ?2, ?3, ?4, ?5, ?6) RETURNING id")
+      .bind(t, run, contentSha, content, qaVerdict(content), JSON.stringify(keys)).first<{ id: number }>();
+    return json(201, { id: row!.id });
+  } catch (e) {
+    // A concurrent upload of the same version won the race; keys are sha-derived, so its files are the same.
+    if (!/UNIQUE constraint failed/.test(String(e))) throw e;
+    const won = await env.DB.prepare("SELECT id FROM qa_reports WHERE tenant = ?1 AND run = ?2 AND content_sha = ?3").bind(t, run, contentSha).first<{ id: number }>();
+    return json(200, { id: won?.id ?? null, duplicate: true });
   }
-  const row = await env.DB.prepare("INSERT INTO qa_reports (tenant, run, content_sha, content, verdict, shots_json) VALUES (?1, ?2, ?3, ?4, ?5, ?6) RETURNING id")
-    .bind(t, run, contentSha, content, qaVerdict(content), JSON.stringify(keys)).first<{ id: number }>();
-  return json(201, { id: row!.id });
 };

@@ -7,6 +7,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { docStatus, headings, lineDiff, markerCounts } from "../shared/docs.ts";
+import { approvedShas } from "../server/approved.ts";
 import { allowed, collect, extractDecisions, scanPersonalData } from "../scripts/collect-docs.mjs";
 
 const MIG = new URL("../migrations/", import.meta.url);
@@ -81,6 +82,12 @@ test("approval resets when the content sha changes", () => {
   assert.equal(docStatus(A, [], []).status, "unread");
 });
 
+test("re-approving older text makes it the diff base again", () => {
+  const C = "c".repeat(64);
+  const rv = [{ content_sha: A, status: "approved" }, { content_sha: B, status: "approved" }, { content_sha: A, status: "approved" }];
+  assert.equal(docStatus(C, rv, approvedShas(rv)).lastApprovedSha, A);
+});
+
 test("markers, headings and diff", () => {
   assert.deepEqual(markerCounts("{LEGAL_NAME} owes {PRICE_ENTRY} [LAWYER] {lower} [LAWYER]"), { placeholders: 2, lawyer: 2 });
   assert.deepEqual(headings("# Title\n## Fees and payment\n```\n## not a heading\n```\n## Fees and payment").map((h) => h.anchor), ["title", "fees-and-payment", "fees-and-payment-1"]);
@@ -122,9 +129,10 @@ test("collector: refuses a symlink into clients/", () => {
 
 test("collector: refuses real-looking emails and phone numbers", () => {
   assert.deepEqual(scanPersonalData("call (306) 555-0123 or {DEMO_NUMBER}, mail illia@thearkosa.com or x@y.example").length, 0);
-  const found = scanPersonalData("Owner: jane.doe@gmail.com\ncell 306-931-4477\n+1 639 555 2000");
-  assert.deepEqual(found.map((f) => f.kind), ["email", "phone", "phone"]);
-  const root = repo({ "templates/outreach/leak.md": "# Leak\nReach Bob at bob@somefirm.ca or 306.931.4477\n" });
+  const found = scanPersonalData("Owner: jane.doe@example.net\ncell 306-555-2000\n+1 639 555 2001\n+13065552002\n3065552003\n306–555–2004");
+  assert.deepEqual(found.map((f) => f.kind), ["email", "phone", "phone", "phone", "phone", "phone"]);
+  assert.deepEqual(scanPersonalData("+13065550123, 2026-10-14, sha fd30e50, 17:09:17").length, 0);
+  const root = repo({ "templates/outreach/leak.md": "# Leak\nReach Bob at bob@somefirm.invalid or 306.555.2000\n" });
   const errs = collect(root).errors.join("\n");
   assert.match(errs, /leak\.md:2: looks like a real email/);
   assert.match(errs, /leak\.md:2: looks like a real phone/);

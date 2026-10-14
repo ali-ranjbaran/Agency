@@ -31,7 +31,7 @@ export function allowed(rel) {
 }
 
 const EMAIL_RE = /[A-Za-z0-9._%+-]+@((?:[A-Za-z0-9-]+\.)+[A-Za-z]{2,})/g;
-const PHONE_RE = /(?:\+?1[\s.-]?)?\(?\b(\d{3})\)?[\s.-]?(\d{3})[\s.-](\d{4})\b/g;
+const PHONE_RE = /(?<!\d)(?:\+?1[\s.\-–—]?)?\(?(\d{3})\)?[\s.\-–—]?(\d{3})[\s.\-–—]?(\d{4})(?!\d)/g;
 const okEmailDomain = (d) => { d = d.toLowerCase(); return d === "thearkosa.com" || d.endsWith(".thearkosa.com") || d === "example.com" || d === "example.org" || d.endsWith(".example"); };
 const okPhone = (exch, line) => exch === "555" && /^01\d\d$/.test(line);
 
