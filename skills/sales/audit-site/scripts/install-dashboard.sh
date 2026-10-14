@@ -4,7 +4,7 @@
 #   ./install-dashboard.sh uninstall  remove both agents
 #
 # Agent 1  com.arkosa.ops-dashboard  node server.mjs, always on, 127.0.0.1 only.
-# Agent 2  com.arkosa.ops-tunnel     cloudflared, only if ~/.cloudflared/arkosa-ops.yml exists
+# Agent 2  com.arkosa.ops-tunnel     cloudflared, only if ~/.cloudflared/arkosa-audit.yml exists
 #                                    (remote access; see ../references/dashboard.md).
 # Config:  ~/.arkosa/ops.env (outside the repo, chmod 600). Created on first run.
 set -euo pipefail
@@ -12,7 +12,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 SERVER="$HERE/server.mjs"
 ENV_FILE="$HOME/.arkosa/ops.env"
-TUNNEL_CFG="$HOME/.cloudflared/arkosa-ops.yml"
+TUNNEL_CFG="$HOME/.cloudflared/arkosa-audit.yml"
 LEADS_DIR="${LEADS_DIR:-$HOME/Arkosa-leads}"
 DOMAIN="gui/$(id -u)"
 AGENTS="$HOME/Library/LaunchAgents"

@@ -23,8 +23,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify({
-            "@context": "https://schema.org", "@type": "Organization",
+            // ProfessionalService is a LocalBusiness subtype: a local service business, which Arkosa is.
+            "@context": "https://schema.org", "@type": "ProfessionalService",
             name: "Arkosa", url: SITE_URL, email: EMAIL, areaServed: ["Saskatchewan", "Alberta", "Manitoba"],
+            address: { "@type": "PostalAddress", addressLocality: "Saskatoon", addressRegion: "SK", addressCountry: "CA" },
           }) }}
         />
       </head>

@@ -13,6 +13,8 @@ export function Footer() {
           <span className="flex items-center gap-2"><MapleLeaf className="size-3.5 fill-leaf" />Proudly Canadian</span>
           <span aria-hidden="true">·</span>
           <a href="/privacy/" className="underline decoration-1 underline-offset-[5px] hover:decoration-accent">Privacy</a>
+          <span aria-hidden="true">·</span>
+          <a href="/terms/" className="underline decoration-1 underline-offset-[5px] hover:decoration-accent">Terms</a>
         </div>
         <a href={MAILTO} className="font-semibold text-fg underline decoration-1 underline-offset-[5px] hover:decoration-accent">{EMAIL}</a>
       </div>

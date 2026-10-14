@@ -2,6 +2,42 @@
 
 Why we chose what we chose. Newest first. One entry per decision.
 
+## 2026-10-14 · Shared site-checks module for audit-site and qa-site
+
+qa-site was the second build of the same site checks audit-site already had. The common part
+moved to `skills/_shared/site-checks/`: the SSRF-safe fetch, the HTML helpers, the vendor
+fingerprints, and `parsePage()` page facts plus neutral network checks that return evidence but
+no verdict. Each skill keeps its own standard: audit-site grades pass/warn/fail for a sales
+audit and maps findings to the offer; qa-site applies the launch gate (PASS/FAIL/UNVERIFIED/N/A,
+any FAIL blocks). audit-site's output was diffed before/after the move and is identical.
+**Why `_shared` outside the departments:** it isn't a skill and must not be linked as one.
+**Revisit if:** a third skill needs it (then consider a package with its own tests and version).
+
+## 2026-10-13 · Operator console at ops.thearkosa.com, sharing the website's D1
+
+`setup/ops-console/`: its own Pages project (`arkosa-ops`) behind Cloudflare Access, with the
+Access JWT re-checked on every request. It binds the same D1 `arkosa` as the website.
+**Why:** it has to read inbound `leads` and `demo_calls`, and D1 can't join across databases;
+one database also keeps personal data in one place. The console never writes the website's tables.
+Its migrations start at 1001 so the two migration folders can share `d1_migrations`.
+The Mac audit dashboard's planned tunnel moved from ops. to audit.thearkosa.com (it was never live).
+**Revisit if:** a client view is added (schema is tenant-ready) or the website's tables change shape.
+
+## 2026-10-13 · Screenshots served through our own signed URL, not R2 presigned URLs
+
+R2 presigned URLs need S3 API keys and SigV4, and only work on the r2.cloudflarestorage.com host.
+Instead `/api/snapshots/:id/:view?exp&sig` (HMAC, 5 minutes) streams from the private bucket
+through the R2 binding, behind Access. No R2 keys exist anywhere, including on the Mac.
+**Revisit if:** screenshots need to be viewed outside the console.
+
+## 2026-10-13 · Google Places: Text Search with a minimal field mask, off until billing exists
+
+`places.id,places.websiteUri` makes each call Text Search Enterprise (1,000 free/month, then
+US$35 per 1,000; pricing list of 2026-10-08). A call returns up to 20 places, so a 60-result query
+costs 3 calls, about 12 per HVAC search. The hard cap of 500/month stays inside the free tier. Only
+`place_id` is stored (Google's terms); the website is used in memory to visit the firm's own site.
+**Revisit if:** Google changes SKU pricing or free caps, or OSM + manual turn out to cover the market.
+
 ## 2026-10-13 · Prospect lists live in the sending tool, not the repo
 
 **Was:** plan v4's Phase 0 exit check said `admin/prospects` holds the 50 contacts.
@@ -16,7 +52,7 @@ its history for good, even after deletion.
 `skills/sales/audit-site/`: paste a website → automated checks against our own delivery
 standards → Claude Code headless writes proposals mapped to the offer → optional private mock.
 **Where:** a Node server on the Mac mini, bound to 127.0.0.1. Remote use goes through a
-Cloudflare Tunnel to `ops.thearkosa.com`, behind an Access login for one email, and the server
+Cloudflare Tunnel to `audit.thearkosa.com` (moved from ops. on 2026-10-13; ops. is the operator console), behind an Access login for one email, and the server
 re-checks the Access JWT itself. Not a Pages deploy.
 **Why:** the write-up uses Claude Code headless (no API key or per-call billing), the same as
 the lead runner, and that only runs on the Mac. Audits and mocks live next to the leads in

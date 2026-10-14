@@ -39,27 +39,40 @@ export async function readVerifiedTwilioForm(request: Request, authToken: string
 /** +1 and ten digits: Canada and the US only. Everything else is refused, which also blocks toll fraud. */
 export const isNanp = (phone: string | undefined): phone is string => !!phone && /^\+1[2-9]\d{2}[2-9]\d{6}$/.test(phone);
 
+/** 5 s cap so a slow Twilio API can't push the text-back past the 10 s promise. */
 export async function sendSms(
-  env: { TWILIO_ACCOUNT_SID?: string; TWILIO_AUTH_TOKEN?: string; TWILIO_DEMO_NUMBER?: string },
+  env: { TWILIO_ACCOUNT_SID?: string; TWILIO_AUTH_TOKEN?: string; TWILIO_DEMO_NUMBER?: string; TWILIO_API_BASE?: string },
   to: string,
   body: string,
 ): Promise<{ ok: boolean; status: number }> {
   const { TWILIO_ACCOUNT_SID: sid, TWILIO_AUTH_TOKEN: token, TWILIO_DEMO_NUMBER: from } = env;
   if (!sid || !token || !from) return { ok: false, status: 0 };
-  const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
-    method: "POST",
-    headers: {
-      authorization: "Basic " + btoa(`${sid}:${token}`),
-      "content-type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({ To: to, From: from, Body: body }),
-  });
-  return { ok: res.ok, status: res.status };
+  // TWILIO_API_BASE exists only so the local test can point at a mock. Production leaves it unset.
+  const base = env.TWILIO_API_BASE || "https://api.twilio.com";
+  try {
+    const res = await fetch(`${base}/2010-04-01/Accounts/${sid}/Messages.json`, {
+      method: "POST",
+      headers: {
+        authorization: "Basic " + btoa(`${sid}:${token}`),
+        "content-type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ To: to, From: from, Body: body }),
+      signal: AbortSignal.timeout(5000),
+    });
+    return { ok: res.ok, status: res.status };
+  } catch {
+    return { ok: false, status: 0 };
+  }
 }
 
-const STOP = new Set(["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT", "ARRET", "ARRÊT"]);
-const START = new Set(["START", "UNSTOP", "YES"]);
-export const keyword = (body: string | undefined) => {
+// Twilio's default long-code keywords (docs: Advanced Opt-Out). ARRET is our addition for
+// French speakers; recording an extra opt-out only ever means fewer texts.
+const STOP = new Set(["STOP", "STOPALL", "UNSUBSCRIBE", "CANCEL", "END", "QUIT", "REVOKE", "OPTOUT", "ARRET", "ARRÊT"]);
+const START = new Set(["START", "UNSTOP"]);
+/** Twilio's OptOutType (STOP | START | HELP) wins when present; otherwise our keyword match. */
+export const keyword = (body: string | undefined, optOutType?: string) => {
+  const t = (optOutType ?? "").toUpperCase();
+  if (t === "STOP" || t === "START" || t === "HELP") return t.toLowerCase() as "stop" | "start" | "help";
   const w = (body ?? "").trim().toUpperCase();
-  return STOP.has(w) ? "stop" : START.has(w) ? "start" : null;
+  return STOP.has(w) ? "stop" : START.has(w) ? "start" : w === "HELP" || w === "INFO" ? "help" : null;
 };

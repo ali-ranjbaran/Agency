@@ -1,0 +1,16 @@
+{
+  "name": "qa-site-scripts",
+  "private": true,
+  "type": "module",
+  "description": "qa-site: the pre-launch gate. node qa.mjs <url> --mode prospect-preview|client-staging|production",
+  "scripts": {
+    "qa": "node qa.mjs",
+    "test": "node test/starter-selftest.mjs"
+  },
+  "dependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "chrome-launcher": "1.2.2",
+    "lighthouse": "13.5.0",
+    "playwright": "1.64.0"
+  }
+}

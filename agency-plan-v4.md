@@ -1,7 +1,7 @@
 ---
 title: "Arkosa Operating Plan v4"
-subtitle: "Execution plan: Phase 0–1 playbooks, outreach, sales-to-retainer, unit economics, KPIs, add-on roadmap"
-date: "24 September 2026"
+subtitle: "Execution plan: Phase 0–1 playbooks, outreach, sales-to-retainer, unit economics, KPIs, add-on roadmap, competitive position"
+date: "24 September 2026 · §10 added 13 October 2026"
 supersedes: "agency-plan-v2.md (there was no v3; v4 = v2 + the locked decisions + the 24 Sep interview)"
 ---
 
@@ -13,6 +13,7 @@ supersedes: "agency-plan-v2.md (there was no v3; v4 = v2 + the locked decisions 
 - v2 had no §9/§10. The phased plan and the offer ladder only existed as locked decisions in the v4 brief. They're written down here for the first time.
 - Every price in this document is a **PLACEHOLDER** until the pricing discussion. The placeholders only exist so the margin math can be done.
 - Anything marked *(est.)* is an estimate. Anything marked *(verified 24 Sep 2026)* was checked by web search that day. USD→CAD conversions use **1.37** *(est.)*.
+- **13 Oct 2026:** §10 adds the competitive position against DIY builders, low-cost edges, call routing, call summaries, the client dashboard, and the AI voice agent. It proposes decisions D7–D10 for sign-off. Nothing in §1–§9 changes until those are accepted (§10.8 lists the knock-on edits).
 
 ## 0.2 Inputs from the 24 Sep interview
 
@@ -35,6 +36,8 @@ Each item below has a recommended default. **The plan is written as if you accep
 | **D4** | GHL "bought when client #1 signs" (tier unspecified) | **Starter ($97 USD) allows 3 sub-accounts and has no API access** *(verified)*. Phase 1 is exactly 3 clients, but site clients in their free 30 days also take a sub-account, and automated reporting needs the API. | Buy **Starter** at client #1. Upgrade to **Unlimited ($297 USD)** when either a 4th sub-account is needed or `report-to-client` needs the API, whichever comes first. Until then, reports are built from CSV exports. | §5, §9 |
 | **D5** | Core = setup fee + monthly; site clients get automations free for 30 days | If a site client converts on day 28, charging them the full Core setup fee for automations that are already running is a hard sell. | **Site clients who convert pay no Core setup fee.** The site fee absorbed it. Core-direct clients (no site) pay the full setup. Settle the exact numbers in the pricing talk. | §3, §5 |
 | **D6** | Tender alerts pro as a general add-on | Mostly **residential** HVAC firms don't bid public tenders. The add-on only fits the commercial-mechanical segment. | Keep it in Phase 3, but forecast attach from the **commercial-segment count in `ICP.md`**, not from all clients. | §8 |
+
+D7–D10 (response guarantee, dashboard and mobile, AI voice agent, call recording and summaries) are proposed in §10.7.
 
 ## 0.4 Changes to v2 carried by this document
 
@@ -546,7 +549,7 @@ These are proposals for your review, not new commitments. Nothing here gets buil
 |---|---|---|---|
 | **Maintenance-plan program**: recurring furnace/AC tune-up memberships, billed through GHL payments, with seasonal reminder texts | Get paid + never miss it | Recurring revenue for the client. Tune-up reminders are a natural extension of reactivation. | The client must run the plan operationally |
 | **Text-to-pay + invoice reminders** (GHL invoices) | Get paid | Faster cash for owners who invoice from the truck. A bridge to Books. | Overlaps with Jobber/Housecall Pro payments |
-| **After-hours voice answering**: a voice agent picks up missed calls and captures the job details, extending text-back | Never miss it | Winter emergency calls at 2 am | Call quality, per-minute cost, liability for a mishandled emergency |
+| **After-hours voice answering**: a voice agent picks up missed calls and captures the job details, extending text-back (spec in §10.6) | Never miss it | Winter emergency calls at 2 am | Call quality, per-minute cost, liability for a mishandled emergency |
 | **Local Services Ads setup + monthly review** | Find work | Google-screened ads sit above the map pack for HVAC searches *(check Canadian availability for Saskatoon HVAC)* | Ad management is hours-heavy. Keep it to setup + monthly review. |
 
 Already ruled out, not re-proposed: fractional finance dashboards, standalone quoting SaaS, standalone receipt app, in-house bookkeeping, standalone social clients, on-prem AI boxes, French localization.
@@ -590,6 +593,153 @@ Pitch at the **month-3 review**, never during the free period. The free period s
 | R11 | **Local-model output reaching clients unchecked** | Med | Med | Supervised batch only (locked); human review gate in every skill that uses one | Any client-facing error |
 | R12 | **Liability for a failed automation** (missed text on an emergency call) | Low | Med | MSA liability cap, monitoring, E&O insurance quote *(est.)* | Before client #1 |
 
+R13–R15 are proposed in §10.8.
+
+---
+
+# 10 · Competitive position and client-facing extensions (intake, 11–13 Oct 2026)
+
+## 10.0 Status
+
+- This section records the 11–13 Oct discussion. **Nothing in it is locked.** Proposed defaults follow the §0.3 convention: the plan assumes the default unless you reject it (decisions D7–D10, §10.7).
+- Vendor prices are USD as published, *(verified 11 Oct 2026)* unless marked *(est.)*. CAD at 1.37 *(est.)*.
+- Phases still unlock by client count. Nothing here is built before its phase.
+
+## 10.1 Position against DIY builders (Wix, Squarespace)
+
+**Finding.** On the website alone Arkosa loses: Squarespace starts at $19/mo after a 14-day trial; Wix Light is $17/mo; both have AI site generators. Squarespace now also sells Scheduling, Invoicing, Email and SMS Campaigns, SEO/"AI Visibility" tools and a Home Services vertical. Wix has offered phone-assistant apps through its App Market. Assume feature parity on text-back eventually.
+
+**The edge is the work they leave to the owner:**
+
+| Aspect | Wix / Squarespace | Arkosa |
+|---|---|---|
+| Who does the work | Owner (or a freelancer via "Hire an Expert") | Done for them; ~30 min of owner time at setup |
+| What's bought | A tool | An outcome: missed calls → booked jobs |
+| Up-front cost | ~$17–19/mo | Setup + retainer (placeholders §5.2). **Never compete on this line.** |
+| Missed calls | Not core; bolt-on apps owner configures | Core: text-back from their number in ~10 s, tested on 2 carriers |
+| Follow-up / reviews | Broadcast campaigns the owner writes | Triggered workflows (review request, quote follow-up, 2-yr reactivation) |
+| Local ranking | Site SEO settings only | `setup-local-seo`: GBP, citations, NAP, baseline |
+| Quality gate | None | `qa-site` blocks launch on any FAIL |
+| CASL on client messages | Owner's responsibility | Consent windows built into workflows |
+| Proof | Traffic analytics | Day-25 report in dollars, every number labelled |
+| Accountability | Global ticket support | Local operator; free 30-day automation period |
+| They win on | Price, speed (minutes), self-editing, 24/7 platform reliability | — |
+
+**Positioning rules (proposed):**
+1. Don't sell against them; sell on top of them: "Keep your Wix site. This runs under your phone number." A builder customer is a Core-direct prospect, not a lost sale.
+2. Lead with the phone (demo number), never the website.
+3. Price against the cost of missed jobs (client-stated numbers, §3.2 line 2), never against a subscription.
+4. Make hidden work visible in the proposal: one line each for CASL gating, `qa-site`, GBP, 2-carrier testing.
+5. The moat is the day-25 report plus local accountability, not features.
+
+## 10.2 Low-cost edges
+
+| Edge | Type | Setup cost *(est.)* | When |
+|---|---|---|---|
+| **Response guarantee**: every missed call texted within 60 s, 24/7, or that month is free (D7) | Promise | 0 | Phase 1, first proposal |
+| **Live in 48 h**: text-back before the site | Promise | 0 | Phase 1 |
+| **Easy-exit contract** (already §3.3) said out loud in the pitch | Promise | 0 | Phase 1 |
+| **Weekly owner digest**: Monday SMS with missed / texted / replied / booked | Core | ~20 min once | Client #1 |
+| **Emergency escalation**: reply keywords (no heat, furnace, gas, CO, emergency) page the owner; gas/CO auto-reply with the safety line ("leave the house, call 911 / gas utility emergency line") | Core | ~1 h + reviewed wording | Client #1 |
+| **Review reply drafts**: local model drafts, owner approves | Core | minutes/month | Client #1 |
+| **Competitor review line** in monthly report | Core | minutes/month | Client #1 |
+| **Weather-triggered tune-up texts**: Environment Canada cold-snap forecast → past customers ≤2 yrs (CASL purchase rule) | Core | ~4–6 h once, reused for all clients | Clients 2–3, before peak winter |
+| **Reply classification** (job type, urgency) in reports | Core | ~2–3 h, local model batch | With `report-to-client` |
+| **Rebate-ready quoting** (heat pumps / high-efficiency) | Add-on candidate | depends | Phase 3, **only if programs are live — verify first** |
+| **Anonymized peer benchmark** (aggregates only, disclosed in MSA) | Core | low | 5+ clients |
+| **Trades referral network** (opt-in, non-competing trades) | Add-on / retention | low | Phase 5 |
+
+Skipped: call recording by default (see §10.4), AI voice in Phase 1, anything on the §8.2 ruled-out list.
+
+## 10.3 Call routing, tracking and answering
+
+**Arkosa never answers or listens to client calls.** Owner and staff answer as today; the system acts only when nobody picks up. Your access to recordings, if any exist, is limited to debugging.
+
+**Tracking options:**
+
+| Option | How | Pros | Cons |
+|---|---|---|---|
+| **Conditional forwarding** (default for client #1) | Carrier forwards no-answer/busy calls to a GHL number | No change for the owner; fast; reversible | Sees missed calls only; forwarding setup differs by carrier (SaskTel, Bell, Rogers, Telus) — test per client |
+| Port number into GHL | Number moves to GHL, rings owner's phones | Full call log; enables recording | Days–weeks to port; owner nervous; exit clause must port it back |
+| New tracking number | GHL number on site/GBP | Source attribution | Two numbers in circulation; NAP consistency risk |
+
+**Live answering options, cheapest first:** (1) ring several phones at once (owner, office, dispatcher); (2) after-hours routing to the on-call tech; (3) text-back (current Core); (4) human answering service for overflow/after hours (client contracts directly; get quotes); (5) AI voice agent (§10.6, Phase 3). **Phase 1 default: 1 + 2 + 3.**
+
+## 10.4 Call summaries and suggested actions
+
+| | Missed calls | Answered calls |
+|---|---|---|
+| Source | Voicemail + text-back thread | Recording (opt-in) |
+| Consent | None beyond existing text-back basis | Disclosure at call start; PIPEDA notice and purpose; wording reviewed with the contract pack *(not legal advice)* |
+| Coverage | All forwarded misses | Only calls routed through the GHL number |
+| Processing | GHL built-in if adequate *(check)*, else Mac mini overnight batch; urgent ones still use the instant keyword alert | Prefer GHL's own transcription; if the Mac mini is used, audio leaves GHL → MSA data schedule + delete audio after transcription |
+| When | Client #1 | Opt-in pilot with one client after clients 2–3 (D10) |
+
+**Rule:** suggested actions are drafts. The owner approves with one tap; nothing goes to a customer automatically. Answered-call summaries are an upgrade, not free Core.
+
+## 10.5 Client dashboard and mobile
+
+**Texts push, dashboards pull. Use both:** the Monday digest carries 1–2 headline numbers and links to the dashboard, which holds the detail. The dashboard's main screen is a **call feed: who called, what they wanted, what to do next** — that's the version owners will open.
+
+| | A. GHL native | B. GHL white-label | C. Arkosa app (multi-tenant) |
+|---|---|---|---|
+| Client sees | GHL sub-account + standard mobile app | Same, Arkosa-branded | Call feed, summaries, next actions, reports |
+| Monthly cost | $0 on Starter | Unlimited $297 (branded desktop + domain); **white-label mobile app +$497/mo** | Needs Unlimited for API (+$200/mo vs Starter); existing Vercel Pro; DB/email free tiers *(est.)*; AI summaries cents/call *(est.)* |
+| One-time | ~2 h | ~3–5 h *(est.)* | ~30–50 h v1 with Claude Code *(est.)* → 5–8 weeks at 6 build h/wk |
+| Ongoing | ~0 | ~0 | ~1–3 h/month *(est.)* |
+
+**Mobile:** GHL standard app $0 (Phase 1) · white-label app $497/mo (skip until well past 15 clients) · **installable web app (PWA) from option C, push notifications on iOS, ~$0 extra (default)** · native iOS app: Apple developer $99/yr + est. 60–100+ h + App Store reviews (skip).
+
+Build C once, multi-tenant: Next.js on Vercel, magic-link login restricted to the client's email domain, strict per-client data separation. Never per-client dashboards (breaks the ≤3 h/client target).
+
+## 10.6 AI voice agent (Phase 3 add-on candidate)
+
+**Costs:**
+
+| Option | Cost |
+|---|---|
+| GHL Voice AI, pay-per-use | ~$0.06/min engine + TTS base, plus LLM tokens and telephony; ~$0.16/min typical all-in |
+| GHL AI Employee Growth | $50/mo per sub-account, 100 Voice AI min included |
+| GHL AI Employee Unlimited | $97/mo per sub-account, unlimited Voice AI (telephony still metered); wins above ~500 min/mo |
+| Retell | $0.07–0.31/min; ~$0.11–0.15/min realistic |
+| Vapi | $0.05/min hosting only; $0.12–0.40/min all-in |
+| Bland | ~$0.11–0.14/min bundled |
+
+GHL Voice AI can run on an existing number (since Apr 2026). **Per-client example:** 40 calls × 2 min = 80 min × ~$0.16 ≈ $13 USD/mo, or Growth plan. Real cost is your time: ~4–6 h setup, ~1 h/month transcript review *(est.)*. Market resale is $1–3/min; Arkosa would sell a flat after-hours add-on, placeholder $100–200/mo.
+
+**Settings sheet** (per client, in `clients/<name>/workflows.md`, with a test-call set re-run after every change):
+
+1. **When** — after N rings / after hours / busy; hours and holidays; existing customers (CRM allowlist) skip the agent
+2. **Introduction** — business name, discloses it's automated, recording notice if on, calm voice
+3. **Collects** — name, callback number, address/area, problem, urgency, new vs existing; stops once collected
+4. **May say** — hours, service area, callback promise. **Never** prices, diagnoses, warranty promises; booking only with a connected, accurate calendar
+5. **Emergency rules (fixed, not adjustable)** — gas/CO/smoke → leave the house + 911 + gas utility line, page owner; no heat in winter → transfer to on-call, else page
+6. **Handoff** — live transfer on request or urgency
+7. **After call** — summary + suggested action to owner, confirmation text to caller, CRM contact + tags
+8. **Cost caps** — max call length (e.g. 4 min), monthly minute cap (CLAUDE.md: hard cost caps)
+
+Owner can change only toggles (on/off, hours, on-call number, callback promise). Script changes go through Arkosa and the test set. Check which settings GHL exposes natively vs via prompt/workflow before building.
+
+**Spam filtering, layered:** (1) carrier caller-ID verification / spam labels (STIR/SHAKEN) where passed through; (2) blocklist + existing-customer allowlist; (3) agent screening question, polite exit for sales calls, silent/recorded calls end in seconds; (4) no text-back to spam; (5) spam counted separately so day-25 numbers aren't inflated. **Default to letting calls through:** tag suspected spam, never block silently; review tags weekly for the first month; blocklist only confirmed numbers.
+
+## 10.7 Proposed decisions — sign-off needed
+
+| # | Decision | Recommended default | Affects |
+|---|---|---|---|
+| **D7** | Response guarantee | 60-second text-back guarantee in the Core SOW: a system miss makes that month free | §3.3, §3.5 |
+| **D8** | Dashboard and mobile | Phase 1: GHL native + standard app + text digest. When D4 forces Unlimited: build option C as a PWA. No white-label mobile app, no native iOS app. | §5, §6.5 |
+| **D9** | AI voice agent | Phase 3 add-on via GHL AI Employee Growth per client; flat price (placeholder $100–200/mo); emergency rules fixed; passes the §8.3 rubric first | §8.2 |
+| **D10** | Call recording and summaries | Missed-call summaries in Core from client #1. Recording off by default; opt-in pilot after clients 2–3 with disclosure; summaries are draft actions only | §3.3, §6.2 |
+
+## 10.8 Knock-on changes elsewhere (apply on sign-off)
+
+- **§3.3 contract pack:** D7 guarantee; recording disclosure and consent; audio deletion window in the MSA data schedule; disclosure of anonymized benchmarks.
+- **§3.4 / §6.5 `report-to-client`:** spam excluded from missed-call counts; reply classification; competitor review line.
+- **§6.2 `setup-crm-automations`:** add emergency keyword escalation, weekly owner digest, spam tagging, phone-routing setup (ring group, after-hours routing, conditional forwarding test per carrier).
+- **§8.2 candidates:** add rebate-ready quoting, recorded-call summaries, trades referral network. After-hours voice answering now has the spec in §10.6.
+- **§9 risks (proposed):** **R13** voice agent mishandles an emergency (fixed rules, transfer, liability cap, E&O); **R14** builders reach feature parity on text-back (moat = accountability and report, §10.1); **R15** custom dashboard maintenance load (single multi-tenant build, PWA only).
+
+
 ---
 
 # Appendix A · Why (short)
@@ -599,6 +749,8 @@ Pitch at the **month-3 review**, never during the free period. The free period s
 - **D3, Twilio demo:** the demo is the single most important sales asset in Phase 1. It can't have a 14-day expiry.
 - **Phone first:** in a 35–80 firm market, each firm is worth more than a cold email's attention. A call with a live demo is the highest-signal touch you can afford at 9 h/wk.
 - **Placeholder prices:** they keep the margin math honest without pre-deciding the pricing talk.
+- **D8, texts plus dashboard:** trades owners don't log in to read charts; a pushed number keeps retention, and a call feed with next actions is the only dashboard screen they'll open.
+- **D9/D10, voice and recording later:** usage is cheap; the real costs are emergency liability, consent and your time.
 
 # Appendix B · Sources (checked 24 Sep 2026)
 
@@ -611,6 +763,17 @@ Pitch at the **month-3 review**, never during the free period. The free period s
 - CASL implied consent periods and conspicuous publication: [CRTC guidance](https://crtc.gc.ca/eng/com500/guide.htm)
 - Saskatoon HVAC universe *(estimate)*: [PublicLeads](https://www.publicleads.com/hvac-contractors/canada/saskatchewan/saskatoon), [Yably](https://yably.ca/hvac-contractors/saskatoon)
 
+**Added for §10 (checked 11 Oct 2026):**
+
+- Squarespace product range and $19/mo starting price: [squarespace.com](https://www.squarespace.com/)
+- Squarespace Aug 2026 price change: [costbench.com](https://costbench.com/changelog/squarespace-price-decrease-2026-08/)
+- Wix plans: [stylefactoryproductions.com](https://www.stylefactoryproductions.com/blog/wix-pricing)
+- Wix phone assistant (Goodcall, older article): [techradar.com](https://www.techradar.com/news/wix-turns-to-ai-to-help-users-deliver-247-customer-support)
+- GHL Voice AI and AI Employee pricing: [botpenguin.com](https://botpenguin.com/blogs/gohighlevel-ai-pricing), [netpartners.marketing](https://netpartners.marketing/gohighlevel-voice-ai/), [thestackinsiders.com](https://www.thestackinsiders.com/blog/gohighlevel-voice-ai-cost)
+- Retell pricing: [krispcall.com](https://krispcall.com/general/retell-ai-pricing/), [11x.ai](https://www.11x.ai/guides/retell-ai-pricing)
+- Vapi pricing: [dailyaifixs.com](https://dailyaifixs.com/blog/vapi-pricing-2026-0-05-min-is-only-hosting)
+- GHL white-label and mobile app add-on: [setsmart.io](https://setsmart.io/blog/gohighlevel-white-label)
+
 ---
 
-> **Mirror note:** there's no `agency-plan-v4.docx` yet. Create it from this file (`pandoc agency-plan-v4.md -o agency-plan-v4.docx` works, and the SVGs embed). From now on, mirror every change to this file into that .docx. `agency-plan-v2.docx` is superseded except for v2 §1–§8, which this document references.
+> **Mirror note:** there's no `agency-plan-v4.docx` yet. Create it from this file (`pandoc agency-plan-v4.md -o agency-plan-v4.docx` works, and the SVGs embed). From now on, mirror every change to this file into that .docx. `agency-plan-v2.docx` is superseded except for v2 §1–§8, which this document references. **13 Oct: mirror §10, the §0.1/§0.3 notes, the §8.2 voice-answering pointer and the Appendix A/B additions.**

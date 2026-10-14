@@ -17,7 +17,7 @@ export default function Privacy() {
       <Header />
       <main id="main" className="gutter mx-auto max-w-page pb-[clamp(56px,9vw,112px)]">
         <h1 className="mt-6 text-h2 font-semibold tracking-tight">Privacy</h1>
-        <p className="mt-3 text-muted">Last updated October 10, 2026.</p>
+        <p className="mt-3 text-muted">Last updated October 13, 2026.</p>
         <div className="mt-8 max-w-[40rem] text-pretty">
           <h2 className={H}>Browsing this site</h2>
           <p className="mt-3">This site has no analytics, no advertising and no tracking pixels. The missed-call calculator runs in your browser; the numbers you type stay there unless you choose to send them with the form.</p>
@@ -38,7 +38,7 @@ export default function Privacy() {
 
           <h2 className={H}>The demo phone line</h2>
           <p className="mt-3">
-            If you call our demo line, we receive your phone number from our phone provider, Twilio. We use it to send you one demo text, and we keep a record of it so we never text you more than once a day and so we honour STOP. Reply STOP at any time and you will get no further texts from that line. Calls to the demo line are not answered or recorded.
+            If you call our demo line, we receive your phone number from our phone provider, Twilio. We use it to send you one demo text from a fictional business, and one automatic reply if you answer it. We don&rsquo;t store your number: we keep a one-way hash of it and its last 4 digits, with the time of the call, so we never text you more than once in 10 minutes and so we honour STOP. We don&rsquo;t store what you text us. Reply STOP at any time and you will get no further texts from that line. Calls to the demo line are not answered or recorded.
           </p>
 
           <h2 className={H}>If you email us</h2>

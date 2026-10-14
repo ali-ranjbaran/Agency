@@ -1,0 +1,18 @@
+# arkosa-alerts: emails the operator when a demo-line cap is hit.
+# Reachable only through the site's [[services]] ALERTS binding: no route, no workers.dev URL.
+# Deploy from the site folder (it has wrangler installed):
+#   cd ../arkosa-site && npx wrangler deploy -c ../arkosa-alerts/wrangler.toml
+name = "arkosa-alerts"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+workers_dev = false
+preview_urls = false
+
+# Sends to verified Email Routing destination addresses are free on every plan.
+# The recipient is the ALERT_TO secret, so no address lives in the repo:
+#   npx wrangler secret put ALERT_TO -c ../arkosa-alerts/wrangler.toml
+[[send_email]]
+name = "EMAIL"
+
+[vars]
+ALERT_FROM = "alerts@thearkosa.com"

@@ -18,7 +18,7 @@
  *
  * Env: PORT, TUNNEL_PORT, LEADS_DIR, AUDITS_PER_DAY (25), PSI_API_KEY, CLAUDE_BIN, CLAUDE_MODEL,
  *      ACCESS_TEAM_DOMAIN (https://<team>.cloudflareaccess.com), ACCESS_AUD, ACCESS_EMAILS (comma list),
- *      OPS_HOSTNAME (e.g. ops.thearkosa.com; Host header the tunnel listener accepts)
+ *      OPS_HOSTNAME (e.g. audit.thearkosa.com; Host header the tunnel listener accepts)
  * Setup: ../references/dashboard.md
  */
 import http from "node:http";

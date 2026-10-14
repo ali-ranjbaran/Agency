@@ -10,5 +10,5 @@
     "skipLibCheck": true,
     "isolatedModules": true
   },
-  "include": ["functions/**/*.ts", "server/**/*.ts"]
+  "include": ["functions/**/*.ts", "server/**/*.ts", "../arkosa-alerts/src/**/*.ts"]
 }

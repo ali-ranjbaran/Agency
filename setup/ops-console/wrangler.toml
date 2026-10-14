@@ -1,0 +1,38 @@
+# Arkosa operator console (ops.thearkosa.com). Cloudflare Pages project "arkosa-ops".
+# Internal only. Cloudflare Access in front; functions/_middleware.ts re-checks the Access
+# JWT on every request, static files included, and fails closed when ACCESS_* is unset.
+name = "arkosa-ops"
+compatibility_date = "2026-09-01"
+pages_build_output_dir = "./dist"
+
+# Shared with the website: the console reads `leads` and `demo_calls` (never writes them)
+# and owns the tables in ./migrations (file names 1001+, so they can't collide with the site's).
+[[d1_databases]]
+binding = "DB"
+database_name = "arkosa"
+database_id = "37b4997f-2548-4ed2-bdf8-257ee0d19a63"
+migrations_dir = "migrations"
+
+# Private bucket: desktop + mobile screenshots. No public access, no r2.dev URL.
+# Served only through /api/snapshots/:id/:view with a signed, 5-minute URL.
+[[r2_buckets]]
+binding = "SNAPSHOTS"
+bucket_name = "arkosa-ops-snapshots"
+
+# Operator email alerts (Places monthly cap), via the site's arkosa-alerts Worker.
+[[services]]
+binding = "ALERTS"
+service = "arkosa-alerts"
+
+[vars]
+TENANT = "arkosa"
+PLACES_MONTHLY_CAP = "500"
+
+# Secrets (never in this file). Set each with `npx wrangler pages secret put <NAME>`:
+#   ACCESS_TEAM_DOMAIN   https://<team>.cloudflareaccess.com
+#   ACCESS_AUD           the Access application's AUD tag
+#   ACCESS_EMAILS        comma list of operator emails allowed in
+#   RUNNER_CLIENT_IDS    comma list of service-token Client IDs (the Mac runner); runner paths only
+#   PHONE_HASH_KEY       same value as the website's, so demo calls match company phones
+#   SNAPSHOT_URL_KEY     any long random string (openssl rand -hex 32); signs screenshot URLs
+# Local dev: the same names in .dev.vars (gitignored). Names only: .env.example.
