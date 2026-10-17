@@ -107,6 +107,9 @@ Run `./install-skills.sh` after adding or renaming any skill.
 
 ## Standing behaviour
 
+- Subagents in `.claude/agents/` are imported personas. When an agent's style or process
+  conflicts with this file, this file wins. Agents advise; skills own the gates.
+
 - Ask before creating files outside the structure above.
 - When you build something for the second time, say so and offer to turn it into a
   skill.
